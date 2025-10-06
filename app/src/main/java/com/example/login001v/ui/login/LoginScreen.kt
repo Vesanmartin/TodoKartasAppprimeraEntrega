@@ -178,7 +178,15 @@ fun LoginScreen(
             )
 
 
+            if(state.error !=null   ){
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text=state.error ?:"",
+                color= MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )// fin text
 
+            }// fin state
 
 
 
@@ -186,10 +194,29 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(66.dp))
 
-                Button(onClick = {/* accion futura*/}){
-                    Text("Presioname")
-                } // fin boton
+                Button(onClick = {/* accion futura*/
+                vm.submit{
+                  user ->
+                    navController.navigate("muestraDatos/$user")  // navega a una pantalla nueva pasando el parametro user
+                    { // inicio navegate
+                    popUpTo("login"){inclusive = true} //  no volver al login con Back
+                    launchSingleTop = true  // evita que se cree una nueva instancia
 
+                    } // fin navegate
+                }// fin submit
+
+                }, //fin onClick
+                    enabled=!state.isLoading,
+                     modifier = Modifier.fillMaxWidth(0.6f)
+                )//fin Button
+
+
+                {
+                   // Text("Presioname")
+
+                    Text( if (state.isLoading)  "Validando" else "Iniciar  sesion"  )
+
+                } // fin boton
 
 
             }// fin Contenido
