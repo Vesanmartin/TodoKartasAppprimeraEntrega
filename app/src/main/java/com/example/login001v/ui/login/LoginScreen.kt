@@ -104,8 +104,6 @@ fun LoginScreen(
                 ) // Muestra un texto simple en la pantalla
 
 
-
-
                 Image(  // insertar una imagen en la interfaz
                     painter= painterResource(id = R.drawable.logoduoc),
                     contentDescription = "Logo App",
