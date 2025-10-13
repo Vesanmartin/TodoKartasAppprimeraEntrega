@@ -195,7 +195,10 @@ fun LoginScreen(
                 Button(onClick = {/* accion futura*/
                 vm.submit{
                   user ->
-                    navController.navigate("muestraDatos/$user")  // navega a una pantalla nueva pasando el parametro user
+
+//                    navController.navigate("muestraDatos/$user")  // navega a una pantalla nueva pasando el parametro user
+                    navController.navigate("DrawerMenu/$user")  // navega a una pantalla nueva pasando el parametro user
+
                     { // inicio navegate
                     popUpTo("login"){inclusive = true} //  no volver al login con Back
                     launchSingleTop = true  // evita que se cree una nueva instancia
