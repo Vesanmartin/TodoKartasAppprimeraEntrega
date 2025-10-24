@@ -72,7 +72,7 @@ fun LoginScreen(
         Scaffold (
             // Crea Estuctra basica de la pantalla Se define topBar, BottomBar
             topBar = {
-                TopAppBar(title = {Text("Mi Primer App",
+                TopAppBar(title = {Text("TodoKartas:La Mejor mano",
                     color =MaterialTheme.colorScheme.onPrimary,
                 )})
 
@@ -105,7 +105,7 @@ fun LoginScreen(
 
 
                 Image(  // insertar una imagen en la interfaz
-                    painter= painterResource(id = R.drawable.logoduoc),
+                    painter= painterResource(id = R.drawable.logotodokartasreload),
                     contentDescription = "Logo App",
                     modifier = Modifier
                         .fillMaxWidth()
@@ -130,7 +130,7 @@ fun LoginScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 )// Fin Row
                 {// Aplica row
-                    Text("texto uno",
+                    Text("TodoKartas",
                         style =MaterialTheme.typography.bodyLarge.copy(
                             color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
                             fontWeight = FontWeight.Bold),
@@ -139,7 +139,7 @@ fun LoginScreen(
                     )// fin texto 1
 
 
-                    Text("texto dos",
+                    Text("La mejor mano",
                         style =MaterialTheme.typography.bodyLarge.copy(
                             color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
                             fontWeight = FontWeight.Bold),
