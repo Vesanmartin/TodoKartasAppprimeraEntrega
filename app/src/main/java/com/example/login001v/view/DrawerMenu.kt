@@ -10,10 +10,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Brightness5
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Grass
 import androidx.compose.material.icons.filled.LocalFireDepartment
 import androidx.compose.material.icons.filled.LunchDining
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,29 +61,30 @@ fun DrawerMenu(
         {
             item{ // item 1
                 NavigationDrawerItem(
-                    label = {Text("Hamburgesa Clasica")},
+                    label = {Text("Charmander destruccion Abrazadora")},
                     selected = false,
                     onClick = {
-                        val nombre= Uri.encode("Hamburgesa Clasica")
-                        val precio="5000"
+                        val nombre= Uri.encode("Charmander Destruccion")
+                        val precio="15990"
 
                         navController.navigate("ProductoFormScreen/$nombre/$precio")
                     },// fin onclick
 
-                    icon = {Icon(Icons.Default.Fastfood , contentDescription = "Clasica"    )}
+                    icon = {Icon(Icons.Default.Settings, contentDescription = "Pokemon"    )}
                 )// fin navigation
 
             } // fin item 1
 
             item{ // item 2
                 NavigationDrawerItem(
-                    label = {Text("Hamburgesa BBQ")},
+                    label = {Text("Misty Psyduck")},
                     selected = false,
                     onClick = {
-                        /*  accion pendiente */
+                        val nombre= Uri.encode("Misty Psyduck")
+                        val precio="32990"
                     },// fin onclick
 
-                    icon = {Icon(Icons.Default.LunchDining , contentDescription = "BBQ"    )}
+                    icon = {Icon(Icons.Default.Settings , contentDescription = "Pokemon"    )}
                 )// fin navigation
 
             } // fin item 2
@@ -89,39 +92,39 @@ fun DrawerMenu(
 
             item{ // item 3
                 NavigationDrawerItem(
-                    label = {Text("Hamburgesa Veggie")},
+                    label = {Text("CharizardGX")},
                     selected = false,
                     onClick = {
                         /*  accion pendiente */
                     },// fin onclick
 
-                    icon = {Icon(Icons.Default.Grass , contentDescription = "Veggie"    )}
+                    icon = {Icon(Icons.Default.Settings , contentDescription = "Pokemon"    )}
                 )// fin navigation
 
             } // fin item 3
 
             item{ // item 4
                 NavigationDrawerItem(
-                    label = {Text("Hamburgesa Picante")},
+                    label = {Text("Magic The Chain Veil")},
                     selected = false,
                     onClick = {
                         /*  accion pendiente */
                     },// fin onclick
 
-                    icon = {Icon(Icons.Default.LocalFireDepartment , contentDescription = "Picante"    )}
+                    icon = {Icon(Icons.Default.Brightness5 , contentDescription = "Magic"    )}
                 )// fin navigation
 
             } // fin item 4
 
             item{ // item 5
                 NavigationDrawerItem(
-                    label = {Text("Hamburgesa Doble")},
+                    label = {Text("Festa2023")},
                     selected = false,
                     onClick = {
                         /*  accion pendiente */
                     },// fin onclick
 
-                    icon = {Icon(Icons.Default.Star , contentDescription = "Doble"    )}
+                    icon = {Icon(Icons.Default.Star , contentDescription = "BTS"    )}
                 )// fin navigation
 
             } // fin item 5
@@ -132,7 +135,7 @@ fun DrawerMenu(
 
         //Footer
         Text(
-            text="@ 2025 Burger App",
+            text="@ 2025 TodoKartasApp☻☻☻",
             style=MaterialTheme.typography.bodySmall,
             modifier=Modifier
                 .fillMaxWidth()
@@ -156,5 +159,5 @@ fun DrawerMenu(
 
 fun DrawerMenuPreview(){
     val navController = androidx.navigation.compose.rememberNavController()
-    DrawerMenu(username = "Usuario Prueba", navController = navController)
+    DrawerMenu(username = "Usuario :)", navController = navController)
 }

@@ -56,6 +56,16 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    //  implementation(libs.androidx.compose.runtime.livedata)
+
+    // Option 1: If you add it to libs.versions.toml
+    //implementation(libs.androidx.compose.runtime.livedata)
+    // OR Option 2: Direct notation
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+
+
+
+
 
     // Dependencia para la navegación con Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.7.7")

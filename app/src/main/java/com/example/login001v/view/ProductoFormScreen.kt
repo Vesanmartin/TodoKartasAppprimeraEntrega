@@ -1,32 +1,12 @@
 package com.example.login001v.view
+import com.example.login001v.R
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -38,191 +18,171 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.login001v.data.model.Producto
 import com.example.login001v.viewmodel.ProductoViewModel
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.layout.ContentScale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun ProductoFormScreen(
     navController: NavController,
-    nombre:String,
-    precio:String
-){// Inicio
+    nombre: String,
+    precio: String
+) {
+    // Estados locales del formulario
+    var cantidad by remember { mutableStateOf(TextFieldValue("")) }
+    var direccion by remember { mutableStateOf(TextFieldValue("")) }
+    var eEspecial by remember { mutableStateOf(false) }
+    var aPuntos by remember { mutableStateOf(false) }
 
-    var cantidad by remember{ mutableStateOf(TextFieldValue("")) }
-    var direccion by remember{ mutableStateOf(TextFieldValue("")) }
+    // ViewModel (inyección por defecto)
+    val viewModel: ProductoViewModel = viewModel()
+    val productos: List<Producto> by viewModel.productos.collectAsState()
 
-    var conPapas  by remember{ mutableStateOf(false) }
-    var agrandarBebida  by remember{ mutableStateOf(false) }
-
-// conectamos al viewmodel
-    val viewModel: ProductoViewModel =viewModel()
-
-    // Observar directamente los productos
-
-    val productos : List<Producto> by viewModel.productos.collectAsState()
-
-    Scaffold (
+    Scaffold(
         bottomBar = {
             BottomAppBar {
-                // Contenido Barra superior
-            } // fin Bootom App
-        }// fin bottom
-
-    ) // fin Scaffold
-
-    {// inicio inner
-            innerPadding ->
+                Text(
+                    text = "Tienda TodOKartas",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .padding(16.dp)
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
-        )// fin Column
-        { // Inicio Contenido
+        ) {
+            // Imagen genérica del producto: Charmander para presentacion
+            // Estado para controlar si está ampliada o no
+            var expanded by remember { mutableStateOf(false) }
+
+            // Animación suave entre los tamaños
+            val imageHeight by animateDpAsState(
+                targetValue = if (expanded) 420.dp else 250.dp,
+                label = "imageHeightAnimation"
+            )
 
             Image(
-                painter= painterResource(id= android.R.drawable.ic_menu_gallery),
-                contentDescription = "Imagen Producto",
-                modifier=Modifier
-                    .height(150.dp)
+                painter = painterResource(id = R.drawable.charmanderdestruccionabrazadora),
+                contentDescription = "Charmander Destrucción Abrazadora",
+                modifier = Modifier
+                    .height(imageHeight) // Tamaño animado
                     .fillMaxWidth()
-            )// fin Image
+                    .clickable { expanded = !expanded } // Toca para agrandar o reducir
+                    .padding(4.dp)
+                    .shadow(if (expanded) 8.dp else 2.dp, shape = MaterialTheme.shapes.medium), // sombra suave
+                alignment = Alignment.Center,
+                contentScale = if (expanded) ContentScale.Crop else ContentScale.Fit // cambia cómo se muestra
+            )
 
-            Spacer(modifier =Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text=nombre, style= MaterialTheme.typography.headlineSmall)
-            Text(text="Precio: $precio", style= MaterialTheme.typography.bodyLarge)
+            Text(text = nombre, style = MaterialTheme.typography.headlineSmall)
+            Text(text = "Precio: $precio", style = MaterialTheme.typography.bodyLarge)
 
-            Spacer(modifier =Modifier.height(16.dp))
-
-
-            OutlinedTextField(
-                value=cantidad,
-                onValueChange = {cantidad = it},
-                //OutlinedTextField es un componente de entrada de texto
-                // se utiliza para permitir que el usuario ingrese un valor.
-
-                label ={Text("Cantidad")},
-                modifier = Modifier.fillMaxWidth()
-            ) // fin cantidad
+            Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
-                value=direccion,
-                onValueChange = {direccion = it},
-                //OutlinedTextField es un componente de entrada de texto
-                // se utiliza para permitir que el usuario ingrese un valor.
-
-                label ={Text("Direccion")},
+                value = cantidad,
+                onValueChange = { cantidad = it },
+                label = { Text("Cantidad") },
                 modifier = Modifier.fillMaxWidth()
-            ) // fin direccion
+            )
 
-            Row(verticalAlignment = Alignment.CenterVertically){
+            OutlinedTextField(
+                value = direccion,
+                onValueChange = { direccion = it },
+                label = { Text("Dirección") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
-                    checked =conPapas,
-                    onCheckedChange = {conPapas = it}
+                    checked = eEspecial,
+                    onCheckedChange = { eEspecial = it }
                 )
-                Text("Agrandar Papas Fritas")
-            }// fin row 1
+                Text("Agregar edición especial")
+            }
 
-            Row(verticalAlignment = Alignment.CenterVertically){
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
-                    checked =agrandarBebida,
-                    onCheckedChange = {agrandarBebida = it}
+                    checked = aPuntos,
+                    onCheckedChange = { aPuntos = it }
                 )
-                Text("Agrandar Bebida")
-            }// fin row 2
+                Text("Agregar puntos")
+            }
 
-            Spacer(modifier =Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = {
-                val producto =Producto(
-                    nombre = nombre,
-                    precio= precio,
-                    cantidad = cantidad.text,
-                    direccion=direccion.text,
-                    conPapas = conPapas,
-                    agrandarBebida = agrandarBebida
-
-                )
+                    val producto = Producto(
+                        nombre = nombre,
+                        precio = precio,
+                        cantidad = cantidad.text,
+                        direccion = direccion.text,
+                        edicionEspecial = eEspecial,
+                        agregarPuntos = aPuntos
+                    )
                     viewModel.guardarProducto(producto)
-
                 },
-                enabled=cantidad.text.isNotBlank() && direccion.text.isNotBlank()
-            ) // fin Button
-            { // inicio texto
+                enabled = cantidad.text.isNotBlank() && direccion.text.isNotBlank()
+            ) {
                 Text("Confirmar Pedido")
-            }// fin texto
-            Spacer(modifier =Modifier.height(16.dp))
+            }
 
-// Mostrar Productos guardados
-            Text("Pedidos realizados :", style=MaterialTheme.typography.headlineSmall )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            if (productos.isNotEmpty()){
+            Text(
+                text = "Pedidos realizados:",
+                style = MaterialTheme.typography.headlineSmall
+            )
 
-                LazyColumn(modifier=Modifier.weight(1f)){
-
-                    items(productos){ producto ->
+            if (productos.isNotEmpty()) {
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(productos) { producto ->
                         Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                        )// fin Card
-                        {// contenido Card
-
-                            Column(modifier=Modifier.padding(8.dp)  )
-                            { // contenido columna
-
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(8.dp)) {
                                 Text(
-                                    text ="${producto.nombre} - ${producto.precio}",
-                                    style=MaterialTheme.typography.bodyLarge
-                                ) // fin text1
-
+                                    text = "${producto.nombre} - ${producto.precio}",
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
                                 Text(
-                                    text ="Cantidad ${producto.cantidad}",
-                                    style=MaterialTheme.typography.bodyMedium
-                                ) // fin text2
-
+                                    text = "Cantidad: ${producto.cantidad}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                                 Text(
-                                    text ="Direccion ${producto.direccion}",
-                                    style=MaterialTheme.typography.bodyMedium
-                                ) // fin text3
-
-
-
-                            } // fin contenido columna
-
-                        }// fin contenido card
-
-
-                    }// fin items
-
-
-
-                } // fin lazy
-            }// end if
-            else{
-
+                                    text = "Dirección: ${producto.direccion}",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
                 Text(
                     text = "No hay pedidos realizados",
-                    modifier=Modifier.weight(1f),
-                    style=MaterialTheme.typography.bodyMedium
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium
                 )
-            } // fin else
-
-
-        } //Fin Contenido
-
-    } // fin inner
-
-}//fin
-
+            }
+        }
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewProductoFormScreen() {
-    // Preview básico para testing
     ProductoFormScreen(
         navController = rememberNavController(),
         nombre = "Producto Ejemplo",

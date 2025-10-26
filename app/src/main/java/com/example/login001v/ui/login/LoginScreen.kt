@@ -1,9 +1,11 @@
 package com.example.login001v.ui.login
 
 
+import android.R.attr.textStyle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -40,208 +42,231 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.alpha
+import androidx.compose.material3.TextFieldDefaults
 
 @OptIn(ExperimentalMaterial3Api::class)
-// Permite usar funciones Material 3 qe son experimentales
-@Composable  // Genera Interfz Garfica
-
+// Permite usar funciones Material 3 que son experimentales
+@Composable  // Genera Interfaz Gráfica
 fun LoginScreen(
     navController: NavController,
-    vm: LoginViewModel= viewModel()
+    vm: LoginViewModel = viewModel()
+) {
 
-){
+    // Estado del ViewModel (usuario, contraseña, error, etc.)
+    val state = vm.uiState
+    var showPass by remember { mutableStateOf(false) }
 
-    val state =vm.uiState
-    var showPass by remember{mutableStateOf(false)}
-
-    // darkColorScheme  es una funcion de material3 que define un color oscuro
+    // Esquema de colores oscuro (Material 3)
     val ColorScheme = darkColorScheme(
-        primary= Color(0xFF98222E),
+        primary = Color(0xFF5D28B7),  // Rojo oscuro característico del proyecto
         onPrimary = Color.White,
-        onSurface = Color(0xFF333333), //Gris
-    ) // fin dark
+        onSurface = Color(0xFF0C0C0C) // Gris oscuro para texto y bordes
+    ) // fin darkColorScheme
 
-
+    // Aplicar esquema de colores al tema Material
     MaterialTheme(
         colorScheme = ColorScheme
-    ){ // inicio Aplicar Material
+    ) { // inicio Aplicar Material
 
+        //  Contenedor principal que permite superponer fondo e interfaz
+        Box(modifier = Modifier.fillMaxSize()) {
 
-
-        Scaffold (
-            // Crea Estuctra basica de la pantalla Se define topBar, BottomBar
-            topBar = {
-                TopAppBar(title = {Text("TodoKartas:La Mejor mano",
-                    color =MaterialTheme.colorScheme.onPrimary,
-                )})
-
-                // Crea un AppBar con un titulo
-
-            }// fin topBar
-        ) // fin Scaff
-        {// Inicio Inner
-                innerPadding ->
-            // Representa el espacio interno para que no choque con el topBar
-
-            Column (  //   Colaca los elementos de la Ui
+            // Imagen de fondo general con efecto blur y transparencia
+            Image(
+                painter = painterResource(id = R.drawable.fondobannermagic2),
+                contentDescription = null, // No es necesaria descripción
                 modifier = Modifier
-                    .padding( innerPadding)
-                    // Evita que quede oculto
-                    .fillMaxSize() // Hace que la columnna tome el todo el tamaño
-                    .padding(16.dp)
-                    .background(Color(0xFFF0F0F0)), // gris Claro
-                verticalArrangement = Arrangement.spacedBy(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally  // Centra horizontalmente
-                //Define  que elementos dentro la columna estaran separados por 20.dp
-            )// fin column
-            {// inicio Contenido
-                Text(text="Bienvenido !",
-                    style= MaterialTheme.typography.headlineMedium,
-                    color=MaterialTheme.colorScheme.primary
-
-
-                ) // Muestra un texto simple en la pantalla
-
-
-                Image(  // insertar una imagen en la interfaz
-                    painter= painterResource(id = R.drawable.logotodokartasreload),
-                    contentDescription = "Logo App",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp),
-                    contentScale = ContentScale.Fit
-                    // Ajusta la imagen para que encaje dentro del espacio
-
-                ) // Fin Image
-
-
-// agregar un espacio entre la imagen y el boton
-
-                Spacer(modifier = Modifier.height(66.dp))
-
-
-
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                )// Fin Row
-                {// Aplica row
-                    Text("TodoKartas",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )// fin texto 1
-
-
-                    Text("La mejor mano",
-                        style =MaterialTheme.typography.bodyLarge.copy(
-                            color=MaterialTheme.colorScheme.onSurface.copy(alpha=0.8f),
-                            fontWeight = FontWeight.Bold),
-                        modifier = Modifier
-                            .padding(end=8.dp)
-                    )// fin texto 1
-
-
-                } // fin Aplica row
-
-
-                OutlinedTextField(
-                    value=state.username,
-                    onValueChange = vm::onUsernameChange,
-                    label ={Text("Usuario")},
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(0.95f)
-                )
-
-                OutlinedTextField(
-                    value=state.password,
-                    onValueChange = vm::onPasswordChange,
-                    label ={Text("Contraseña")},
-                    singleLine = true,
-                    visualTransformation = if(showPass) VisualTransformation.None else PasswordVisualTransformation(),
-
-                    trailingIcon = {
-                        TextButton(onClick = { showPass = !showPass }) {
-                            Text(if (showPass) "Ocultar" else "Ver")
-                        }
-                    },
-                        modifier = Modifier.fillMaxWidth(0.95f)
-
+                    .fillMaxSize()
+                    .blur(18.dp)   // Efecto de desenfoque suave
+                    .alpha(0.9f),  // Transparencia del fondo
+                contentScale = ContentScale.Crop // Escala para cubrir toda la pantalla
             )
 
+            // Estructura principal de la pantalla (barra superior + contenido)
+            Scaffold(
+                containerColor = Color.Transparent, // Para dejar visible el fondo difuminado
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "Proyecto semestre: TodoKartas",
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    )
+                } // fin topBar
+            ) { innerPadding -> // Inicio del contenido interno (Inner Content)
 
-            if(state.error !=null   ){
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text=state.error ?:"",
-                color= MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Bold
-            )// fin text
+                // Recuadro principal con imagen translúcida y contenido del login
+                Box(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
 
-            }// fin state
+                    // Imagen translúcida que actúa como panel dentro del login
+                    Image(
+                        painter = painterResource(id = R.drawable.fondobannermagic2), // Imagen PNG o WebP con transparencia
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth(0.95f)
+                            .height(580.dp)
+                            .alpha(0.99f) // Controla la transparencia del panel
+                            .align(Alignment.Center),
+                        contentScale = ContentScale.Crop // Ajusta imagen al tamaño del cuadro
+                    )
+
+                    // Contenido que se muestra encima de la imagen translúcida
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .padding(20.dp), // Margen interno del contenido
+                        verticalArrangement = Arrangement.spacedBy(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+
+                        // Texto de bienvenida
+                        Text(
+                            text = "Bienvenido !",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        // Logo principal de TodoKartas
+                        Image(
+                            painter = painterResource(id = R.drawable.logotodokartasreload),
+                            contentDescription = "Logo App",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(250.dp),
+                            contentScale = ContentScale.Fit // Ajusta sin recortar
+                        )
+
+                        // Espaciador entre logo y campos
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // Fila con lema o subtítulo
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                "TodoKartas",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+
+                            Text(
+                                "La mejor mano",
+                                style = MaterialTheme.typography.bodyLarge.copy(
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+
+                        //  Campo de texto para el usuario
+                        OutlinedTextField(
+                            value = state.username,
+                            onValueChange = vm::onUsernameChange,
+                            label = { Text("Usuario") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White.copy(alpha = 0.6f),   // Fondo blanco translúcido (activo)
+                                unfocusedContainerColor = Color.White.copy(alpha = 0.5f), // Fondo blanco translúcido (inactivo)
+                                focusedIndicatorColor = MaterialTheme.colorScheme.primary, // Borde color rojo oscuro (activo)
+                                unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f), // Borde claro (inactivo)
+                                cursorColor = MaterialTheme.colorScheme.primary            // Color del cursor
+                            ),
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black) // Texto negro
+                        )
+                        //  Campo de texto para la contraseña
+                        // 🔑 Campo de texto para la contraseña (con fondo blanco translúcido)
+                        OutlinedTextField(
+                            value = state.password,
+                            onValueChange = vm::onPasswordChange,
+                            label = { Text("Contraseña") },
+                            singleLine = true,
+                            visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
+                            trailingIcon = {
+                                TextButton(onClick = { showPass = !showPass }) {
+                                    Text(if (showPass) "Ocultar" else "Ver")
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White.copy(alpha = 0.6f),   // Fondo blanco translúcido (activo)
+                                unfocusedContainerColor = Color.White.copy(alpha = 0.5f), // Fondo blanco translúcido (inactivo)
+                                focusedIndicatorColor = MaterialTheme.colorScheme.primary, // Borde color rojo oscuro (activo)
+                                unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f), // Borde claro (inactivo)
+                                cursorColor = MaterialTheme.colorScheme.primary            // Color del cursor
+                            ),
+
+                            // Color del texto y tamaño (aquí sí va el color del texto)
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
+                        )
 
 
+                        //  Mostrar mensaje de error si existe
+                        if (state.error != null) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                text = state.error ?: "",
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
 
-// agregar un espacio entre la imagen y el boton
+                        // Espacio antes del botón
+                        Spacer(modifier = Modifier.height(32.dp))
 
-                Spacer(modifier = Modifier.height(66.dp))
-
-                Button(onClick = {/* accion futura*/
-                vm.submit{
-                  user ->
-
-//                    navController.navigate("muestraDatos/$user")  // navega a una pantalla nueva pasando el parametro user
-                    navController.navigate("DrawerMenu/$user")  // navega a una pantalla nueva pasando el parametro user
-
-                    { // inicio navegate
-                    popUpTo("login"){inclusive = true} //  no volver al login con Back
-                    launchSingleTop = true  // evita que se cree una nueva instancia
-
-                    } // fin navegate
-                }// fin submit
-
-                }, //fin onClick
-                    enabled=!state.isLoading,
-                     modifier = Modifier.fillMaxWidth(0.6f)
-                )//fin Button
-
-
-                {
-                   // Text("Presioname")
-
-                    Text( if (state.isLoading)  "Validando" else "Iniciar  sesion"  )
-
-                } // fin boton
-
-
-            }// fin Contenido
-
-        } // Fin inner
-
-
+                        // Botón de inicio de sesión
+                        Button(
+                            onClick = {
+                                // Acción del botón: validar usuario y navegar
+                                vm.submit { user ->
+                                    navController.navigate("DrawerMenu/$user") {
+                                        popUpTo("login") { inclusive = true } // Evita volver atrás al login
+                                        launchSingleTop = true // No crea múltiples instancias
+                                    }
+                                }
+                            },
+                            enabled = !state.isLoading, // Desactiva el botón mientras valida
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(50.dp)
+                        ) {
+                            // Texto dinámico del botón
+                            Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
+                        }
+                    } // fin Column
+                } // fin Box
+            } // Fin inner (contenido interno del Scaffold)
+        } // fin Box principal (fondo difuminado)
     } // fin Aplicar Material
-}// Fin HomeScreen
+} // Fin LoginScreen
 
-
-@Preview(showBackground = true) // Genera la vista
-@Composable  // Genera Interfz Garfica
-
-fun LoginScreenPreview(){
-    // Crear un navController de manera ficticia para fines de la vista previa
+// ---------------------------------------------------------
+// Vista previa de la pantalla de Login
+// ---------------------------------------------------------
+@Preview(showBackground = true) // Genera la vista previa
+@Composable  // Genera Interfaz Gráfica
+fun LoginScreenPreview() {
+    // Crear un navController ficticio para fines de la vista previa
     val navController = rememberNavController()
 
-    // Puedes usar un ViewModel simulado aquí si no tienes acceso a uno real
-    val vm = LoginViewModel() // Suponiendo que LoginViewModel está correctamente configurado para la vista previa
+    // Crear un ViewModel simulado para la vista previa
+    val vm = LoginViewModel() // Suponiendo que LoginViewModel está correctamente configurado
 
+    // Llamar a la pantalla principal de Login
     LoginScreen(navController = navController, vm = vm)
-
-
-
-
-}// Fin HomeScreen
+} // Fin HomeScreen
