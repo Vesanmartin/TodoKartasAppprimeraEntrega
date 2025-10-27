@@ -1,38 +1,20 @@
 package com.example.login001v.ui.login
 
-
-import android.R.attr.textStyle
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import com.example.login001v.R
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,231 +24,227 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.alpha
-import androidx.compose.material3.TextFieldDefaults
+import com.example.login001v.R
 
 @OptIn(ExperimentalMaterial3Api::class)
-// Permite usar funciones Material 3 que son experimentales
-@Composable  // Genera Interfaz Gráfica
+@Composable
 fun LoginScreen(
     navController: NavController,
     vm: LoginViewModel = viewModel()
 ) {
-
-    // Estado del ViewModel (usuario, contraseña, error, etc.)
     val state = vm.uiState
     var showPass by remember { mutableStateOf(false) }
 
-    // Esquema de colores oscuro (Material 3)
-    val ColorScheme = darkColorScheme(
-        primary = Color(0xFF5D28B7),  // Rojo oscuro característico del proyecto
+    val colorScheme = darkColorScheme(
+        primary = Color(0xFF5D28B7),
         onPrimary = Color.White,
-        onSurface = Color(0xFF0C0C0C) // Gris oscuro para texto y bordes
-    ) // fin darkColorScheme
+        surface = Color(0xFF121212),
+        onSurface = Color.White
+    )
 
-    // Aplicar esquema de colores al tema Material
-    MaterialTheme(
-        colorScheme = ColorScheme
-    ) { // inicio Aplicar Material
+    MaterialTheme(colorScheme = colorScheme) {
 
-        //  Contenedor principal que permite superponer fondo e interfaz
-        Box(modifier = Modifier.fillMaxSize()) {
+        // Capa base: imagen de fondo suavizada + velo
+        Box(Modifier.fillMaxSize()) {
 
-            // Imagen de fondo general con efecto blur y transparencia
             Image(
-                painter = painterResource(id = R.drawable.fondobannermagic2),
-                contentDescription = null, // No es necesaria descripción
+                painter = painterResource(R.drawable.fondobannermagic2),
+                contentDescription = null,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .blur(18.dp)   // Efecto de desenfoque suave
-                    .alpha(0.9f),  // Transparencia del fondo
-                contentScale = ContentScale.Crop // Escala para cubrir toda la pantalla
+                    .matchParentSize()
+                    .blur(16.dp)
+                    .background(Color.Black), // evita parpadeos al cargar
+                contentScale = ContentScale.Crop
             )
 
-            // Estructura principal de la pantalla (barra superior + contenido)
+            // Velo para bajar contraste del fondo
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.45f))
+            )
+
+            // Gradiente sutil para reforzar legibilidad arriba/abajo (opcional)
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .background(
+                        Brush.verticalGradient(
+                            0f to Color.Black.copy(alpha = 0.15f),
+                            0.6f to Color.Transparent,
+                            1f to Color.Black.copy(alpha = 0.20f)
+                        )
+                    )
+            )
+
             Scaffold(
-                containerColor = Color.Transparent, // Para dejar visible el fondo difuminado
+                containerColor = Color.Transparent,
                 topBar = {
                     TopAppBar(
-                        title = {
-                            Text(
-                                text = "Proyecto semestre: TodoKartas",
-                                color = MaterialTheme.colorScheme.onPrimary
-                            )
-                        }
+                        title = { Text("Proyecto semestre: TodoKartas") },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.Transparent,
+                            titleContentColor = Color.White
+                        )
                     )
-                } // fin topBar
-            ) { innerPadding -> // Inicio del contenido interno (Inner Content)
+                }
+            ) { innerPadding ->
 
-                // Recuadro principal con imagen translúcida y contenido del login
+                // Contenedor central AGRANDADO y translúcido
                 Box(
                     modifier = Modifier
                         .padding(innerPadding)
-                        .fillMaxSize()
-                        .padding(16.dp),
+                        .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-
-                    // Imagen translúcida que actúa como panel dentro del login
-                    Image(
-                        painter = painterResource(id = R.drawable.fondobannermagic2), // Imagen PNG o WebP con transparencia
-                        contentDescription = null,
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .height(580.dp)
-                            .alpha(0.99f) // Controla la transparencia del panel
-                            .align(Alignment.Center),
-                        contentScale = ContentScale.Crop // Ajusta imagen al tamaño del cuadro
-                    )
-
-                    // Contenido que se muestra encima de la imagen translúcida
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .padding(20.dp), // Margen interno del contenido
-                        verticalArrangement = Arrangement.spacedBy(20.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .fillMaxHeight(0.85f)
+                            .wrapContentHeight(),
+                        shape = RoundedCornerShape(20.dp),
+                        // fondo translúcido para mayor contraste con el fondo
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF1A0928).copy(alpha = 0.65f)
+                        ),
+                        elevation = CardDefaults.cardElevation(8.dp)
                     ) {
-
-                        // Texto de bienvenida
-                        Text(
-                            text = "Bienvenido !",
-                            style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-
-                        // Logo principal de TodoKartas
-                        Image(
-                            painter = painterResource(id = R.drawable.logotodokartasreload),
-                            contentDescription = "Logo App",
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(250.dp),
-                            contentScale = ContentScale.Fit // Ajusta sin recortar
-                        )
-
-                        // Espaciador entre logo y campos
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        // Fila con lema o subtítulo
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(22.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                "TodoKartas",
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                    fontWeight = FontWeight.Bold
+                                "¡Bienvenido!",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+
+                            Spacer(Modifier.height(12.dp))
+
+                            Image(
+                                painter = painterResource(R.drawable.logotodokartasreload),
+                                contentDescription = "Logo App",
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp),
+                                contentScale = ContentScale.Fit
+                            )
+
+                            Spacer(Modifier.height(16.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    "TodoKartas",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White.copy(alpha = 0.9f)
+                                    )
+                                )
+                                Text(
+                                    "La mejor mano",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White.copy(alpha = 0.9f)
+                                    )
+                                )
+                            }
+
+                            Spacer(Modifier.height(12.dp))
+
+                            // Usuario
+                            OutlinedTextField(
+                                value = state.username,
+                                onValueChange = vm::onUsernameChange,
+                                label = { Text("Usuario") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.White.copy(alpha = 0.12f),
+                                    unfocusedContainerColor = Color.White.copy(alpha = 0.10f),
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f),
+                                    cursorColor = MaterialTheme.colorScheme.primary,
+                                    focusedLabelColor = Color.White,
+                                    unfocusedLabelColor = Color.White.copy(alpha = 0.8f)
+
                                 )
                             )
 
-                            Text(
-                                "La mejor mano",
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                        }
-
-                        //  Campo de texto para el usuario
-                        OutlinedTextField(
-                            value = state.username,
-                            onValueChange = vm::onUsernameChange,
-                            label = { Text("Usuario") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.White.copy(alpha = 0.6f),   // Fondo blanco translúcido (activo)
-                                unfocusedContainerColor = Color.White.copy(alpha = 0.5f), // Fondo blanco translúcido (inactivo)
-                                focusedIndicatorColor = MaterialTheme.colorScheme.primary, // Borde color rojo oscuro (activo)
-                                unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f), // Borde claro (inactivo)
-                                cursorColor = MaterialTheme.colorScheme.primary            // Color del cursor
-                            ),
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black) // Texto negro
-                        )
-                        //  Campo de texto para la contraseña
-                        // 🔑 Campo de texto para la contraseña (con fondo blanco translúcido)
-                        OutlinedTextField(
-                            value = state.password,
-                            onValueChange = vm::onPasswordChange,
-                            label = { Text("Contraseña") },
-                            singleLine = true,
-                            visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
-                            trailingIcon = {
-                                TextButton(onClick = { showPass = !showPass }) {
-                                    Text(if (showPass) "Ocultar" else "Ver")
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = TextFieldDefaults.colors(
-                                focusedContainerColor = Color.White.copy(alpha = 0.6f),   // Fondo blanco translúcido (activo)
-                                unfocusedContainerColor = Color.White.copy(alpha = 0.5f), // Fondo blanco translúcido (inactivo)
-                                focusedIndicatorColor = MaterialTheme.colorScheme.primary, // Borde color rojo oscuro (activo)
-                                unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f), // Borde claro (inactivo)
-                                cursorColor = MaterialTheme.colorScheme.primary            // Color del cursor
-                            ),
-
-                            // Color del texto y tamaño (aquí sí va el color del texto)
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.Black)
-                        )
-
-
-                        //  Mostrar mensaje de error si existe
-                        if (state.error != null) {
                             Spacer(Modifier.height(8.dp))
-                            Text(
-                                text = state.error ?: "",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
 
-                        // Espacio antes del botón
-                        Spacer(modifier = Modifier.height(32.dp))
-
-                        // Botón de inicio de sesión
-                        Button(
-                            onClick = {
-                                // Acción del botón: validar usuario y navegar
-                                vm.submit { user ->
-                                    navController.navigate("DrawerMenu/$user") {
-                                        popUpTo("login") { inclusive = true } // Evita volver atrás al login
-                                        launchSingleTop = true // No crea múltiples instancias
+                            // Contraseña
+                            OutlinedTextField(
+                                value = state.password,
+                                onValueChange = vm::onPasswordChange,
+                                label = { Text("Contraseña") },
+                                singleLine = true,
+                                visualTransformation = if (showPass) VisualTransformation.None else PasswordVisualTransformation(),
+                                trailingIcon = {
+                                    IconButton(onClick = { showPass = !showPass }) {
+                                        Icon(
+                                            imageVector = if (showPass) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                            contentDescription = if (showPass) "Ocultar" else "Ver"
+                                        )
                                     }
-                                }
-                            },
-                            enabled = !state.isLoading, // Desactiva el botón mientras valida
-                            modifier = Modifier
-                                .fillMaxWidth(0.6f)
-                                .height(50.dp)
-                        ) {
-                            // Texto dinámico del botón
-                            Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    focusedContainerColor = Color.White.copy(alpha = 0.12f),
+                                    unfocusedContainerColor = Color.White.copy(alpha = 0.10f),
+                                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f),
+                                    cursorColor = MaterialTheme.colorScheme.primary,
+                                    focusedLabelColor = Color.White,
+                                    unfocusedLabelColor = Color.White.copy(alpha = 0.8f)
+                                )
+                            )
+
+                            if (state.error != null) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    text = state.error ?: "",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Spacer(Modifier.height(20.dp))
+
+                            Button(
+                                onClick = {
+                                    vm.submit { user ->
+                                        navController.navigate("DrawerMenu/$user") {
+                                            popUpTo("login") { inclusive = true }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                },
+                                enabled = !state.isLoading,
+                                modifier = Modifier
+                                    .fillMaxWidth(0.7f)
+                                    .height(52.dp)
+                            ) {
+                                Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
+                            }
+
+                            Spacer(Modifier.height(8.dp))
                         }
-                    } // fin Column
-                } // fin Box
-            } // Fin inner (contenido interno del Scaffold)
-        } // fin Box principal (fondo difuminado)
-    } // fin Aplicar Material
-} // Fin LoginScreen
+                    }
+                }
+            }
+        }
+    }
+}
 
-// ---------------------------------------------------------
-// Vista previa de la pantalla de Login
-// ---------------------------------------------------------
-@Preview(showBackground = true) // Genera la vista previa
-@Composable  // Genera Interfaz Gráfica
+@Preview(showBackground = true)
+@Composable
 fun LoginScreenPreview() {
-    // Crear un navController ficticio para fines de la vista previa
     val navController = rememberNavController()
-
-    // Crear un ViewModel simulado para la vista previa
-    val vm = LoginViewModel() // Suponiendo que LoginViewModel está correctamente configurado
-
-    // Llamar a la pantalla principal de Login
+    val vm = LoginViewModel()
     LoginScreen(navController = navController, vm = vm)
-} // Fin HomeScreen
+}
