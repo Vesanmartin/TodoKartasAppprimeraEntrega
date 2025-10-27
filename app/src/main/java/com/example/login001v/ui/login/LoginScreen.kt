@@ -99,6 +99,7 @@ fun LoginScreen(
                 ) {
                     Card(
                         modifier = Modifier
+
                             .fillMaxWidth(0.95f)
                             .fillMaxHeight(0.85f)
                             .wrapContentHeight(),
