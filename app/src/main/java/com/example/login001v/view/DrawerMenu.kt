@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brightness5
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
@@ -127,7 +128,19 @@ fun DrawerMenu(
 
 
         }// fin Lazy
-
+        Button(
+            onClick = {
+                navController.navigate("login") {
+                    popUpTo(0) // Limpia toda la pila de navegación
+                }
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 32.dp, vertical = 8.dp)
+                .height(50.dp)
+        ) {
+            Text("Cerrar sesión")
+        }
 
         //Footer
         Text(

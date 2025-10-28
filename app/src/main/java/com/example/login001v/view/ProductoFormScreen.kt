@@ -143,7 +143,8 @@ fun ProductoFormScreen(
                 text = "Pedidos realizados:",
                 style = MaterialTheme.typography.headlineSmall
             )
-
+            
+            //pedidos
             if (productos.isNotEmpty()) {
                 LazyColumn(modifier = Modifier.weight(1f)) {
                     items(productos) { producto ->
@@ -165,17 +166,23 @@ fun ProductoFormScreen(
                                     text = "Dirección: ${producto.direccion}",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-                            }
+                            } //fin column
                         }
                     }
-                }
+                } //fin lazy column
             } else {
                 Text(
                     text = "No hay pedidos realizados",
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyMedium
                 )
-            }
+            } //fin if
+
+            //boton para navegar a la pantalla anterior
+            Button(
+                onClick = { navController.popBackStack() }, //volver a pagina anterior
+                modifier = Modifier.fillMaxWidth(0.7f).height(52.dp)
+            ) { Text("Volver") }
         }
     }
 }
