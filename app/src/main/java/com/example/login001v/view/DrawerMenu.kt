@@ -126,6 +126,15 @@ fun DrawerMenu(
 
             } // fin item 5
 
+            item {
+                NavigationDrawerItem(
+                    label = { Text("Escanear QR") },
+                    selected = false,
+                    onClick = { navController.navigate("qrScanner") },
+                    icon = { Icon(Icons.Default.Settings, contentDescription = "QR") }
+                )
+            }
+
 
         }// fin Lazy
         Button(
@@ -141,6 +150,9 @@ fun DrawerMenu(
         ) {
             Text("Cerrar sesión")
         }
+
+
+
 
         //Footer
         Text(

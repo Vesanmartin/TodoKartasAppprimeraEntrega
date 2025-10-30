@@ -11,6 +11,7 @@ import com.example.login001v.ui.home.MuestraDatosScreen
 import com.example.login001v.ui.login.LoginScreen
 import com.example.login001v.view.DrawerMenu
 import com.example.login001v.view.ProductoFormScreen
+import com.example.login001v.view.QrRoute
 
 @Composable
 
@@ -61,6 +62,14 @@ fun AppNav(){
 
             ProductoFormScreen( navController = navController,  nombre=nombre, precio=precio)
         } // fin termino back 2
+
+        //inicio QR
+        composable("qrScanner") {
+            QrRoute(
+                navController = navController,
+                returnKey = "qr" // clave que se tomará al volver
+            )
+        } //fin QR
 
     }// fin NavHost
 }// fin AppNav
