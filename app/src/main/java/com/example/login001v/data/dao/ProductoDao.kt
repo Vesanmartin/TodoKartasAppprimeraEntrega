@@ -10,7 +10,7 @@ import androidx.room.Update
 import com.example.login001v.data.model.Producto
 import kotlinx.coroutines.flow.Flow
 
-@Dao
+@Dao //Data Access Object
 
 interface ProductoDao{
 
