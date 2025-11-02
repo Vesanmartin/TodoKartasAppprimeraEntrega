@@ -7,38 +7,29 @@ import androidx.room.RoomDatabase
 import com.example.login001v.data.dao.ProductoDao
 import com.example.login001v.data.model.Producto
 
-
 @Database(
     entities = [Producto::class],
-    version=1,
-    exportSchema = false   // evita warning
+    version = 1,
+    exportSchema = false
 )
+abstract class ProductoDatabase : RoomDatabase() {
 
-abstract class ProductoDatabase: RoomDatabase(){
     abstract fun productoDao(): ProductoDao
 
-    companion object{
+    companion object {
         @Volatile
-        private var INSTANCE: ProductoDatabase? =null
+        private var INSTANCE: ProductoDatabase? = null
 
-        fun getDatabase(context: Context): ProductoDatabase{
-            return INSTANCE ?: synchronized(this){
-                val instance = Room.databaseBuilder(
+        fun getDatabase(context: Context): ProductoDatabase =
+            INSTANCE ?: synchronized(this) {
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     ProductoDatabase::class.java,
                     "producto_database"
-                ).build() // builder
-                INSTANCE = instance
-                instance
-            } // fin return
-
-
-
-        }
-
-    }// fin companion
-
-
-
-
-}// fin abstract
+                )
+                    .fallbackToDestructiveMigration() // útil mientras desarrollas
+                    .build()
+                    .also { INSTANCE = it }
+            }
+    }
+} //fin abstract

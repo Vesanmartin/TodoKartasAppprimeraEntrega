@@ -4,17 +4,24 @@ import com.example.login001v.data.dao.ProductoDao
 import com.example.login001v.data.model.Producto
 import kotlinx.coroutines.flow.Flow
 
-// se crea una capa intermedia entre datos y la UI
+
+class ProductoRepository(private val productoDao: ProductoDao) {
+
+    // READ
+    fun getProductos(): Flow<List<Producto>> =
+        productoDao.getAll()
+
+    // CREATE
+    suspend fun insert(producto: Producto) =
+        productoDao.insert(producto)
+
+    // UPDATE
+    suspend fun update(producto: Producto) =
+        productoDao.update(producto)
+
+    // DELETE
+    suspend fun delete(producto: Producto) =
+        productoDao.delete(producto)
 
 
-class ProductoRepository (private val productoDao: ProductoDao){
-
-    suspend fun insertarProducto(producto: Producto){
-        productoDao.insertarProducto(producto)
-    }
-
-    fun obtenerProductos(): Flow<List<Producto>> {
-        return productoDao.obtenerProductos()
-    }
-
-}
+}// fin producto repository

@@ -1,184 +1,185 @@
 package com.example.login001v.view
 
 import android.net.Uri
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Brightness5
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.login001v.R
 
+// tarjeta individual con nombre+precio
 @Composable
-
-fun DrawerMenu(
-    username:String,
-    navController: NavController
-){ // inicio Drawer
-    Column(modifier=Modifier.fillMaxSize() )
-    { // inicio columna
-
-        Box(
-            modifier=Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .background(MaterialTheme.colorScheme.primary)
-        ) // fin Box
-        {// inicio contenido
-            Text(
-               text="Categorias user:$username",
-                style=MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier=Modifier
-                    .align(Alignment.BottomStart)
+private fun ProductCardCompact(
+    @DrawableRes imageRes: Int,
+    nombre: String,
+    precio: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 4.dp)
+            .clickable { onClick() },
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(8.dp)
+        ) {
+            // Imagen pequeña a la izquierda
+            Image(
+                painter = painterResource(imageRes),
+                contentDescription = nombre,
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(MaterialTheme.shapes.medium),
+                contentScale = ContentScale.Crop
             )
-        }// termino contenido
 
-        // Items
-        //LazyColumn: Creas la lista de elemnetos que se desplazan verticalmente
+            Spacer(Modifier.width(12.dp))
 
-        LazyColumn (modifier=Modifier.weight(1f) )
-        {
-            item{ // item 1
-                NavigationDrawerItem(
-                    label = {Text("Charmander destruccion Abrazadora")},
-                    selected = false,
-                    onClick = {
-                        val nombre= Uri.encode("Charmander Destruccion")
-                        val precio="15990"
-
-                        navController.navigate("ProductoFormScreen/$nombre/$precio")
-                    },// fin onclick
-
-                    icon = {Icon(Icons.Default.Settings, contentDescription = "Pokemon"    )}
-                )// fin navigation
-
-            } // fin item 1
-
-            item{ // item 2
-                NavigationDrawerItem(
-                    label = {Text("Misty Psyduck")},
-                    selected = false,
-                    onClick = {
-                        val nombre= Uri.encode("Misty Psyduck")
-                        val precio="32990"
-                    },// fin onclick
-
-                    icon = {Icon(Icons.Default.Settings , contentDescription = "Pokemon"    )}
-                )// fin navigation
-
-            } // fin item 2
-
-
-            item{ // item 3
-                NavigationDrawerItem(
-                    label = {Text("CharizardGX")},
-                    selected = false,
-                    onClick = {
-                        /*  accion pendiente */
-                    },// fin onclick
-
-                    icon = {Icon(Icons.Default.Settings , contentDescription = "Pokemon"    )}
-                )// fin navigation
-
-            } // fin item 3
-
-            item{ // item 4
-                NavigationDrawerItem(
-                    label = {Text("Magic The Chain Veil")},
-                    selected = false,
-                    onClick = {
-                        /*  accion pendiente */
-                    },// fin onclick
-
-                    icon = {Icon(Icons.Default.Brightness5 , contentDescription = "Magic"    )}
-                )// fin navigation
-
-            } // fin item 4
-
-            item{ // item 5
-                NavigationDrawerItem(
-                    label = {Text("Festa2023")},
-                    selected = false,
-                    onClick = {
-                        /*  accion pendiente */
-                    },// fin onclick
-
-                    icon = {Icon(Icons.Default.Star , contentDescription = "BTS"    )}
-                )// fin navigation
-
-            } // fin item 5
-
-            item {
-                NavigationDrawerItem(
-                    label = { Text("Escanear QR") },
-                    selected = false,
-                    onClick = { navController.navigate("qrScanner") },
-                    icon = { Icon(Icons.Default.Settings, contentDescription = "QR") }
+            Column {
+                Text(
+                    text = nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "$$precio",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
+        }
+    }
+}
 
+//modelo lista productos
+private data class ProductoUi(
+    @DrawableRes val imageRes: Int,
+    val nombre: String,
+    val precio: String
+)
 
-        }// fin Lazy
+//menu lateral para lista productos
+@Composable
+fun DrawerMenu(
+    username: String,
+    navController: NavController
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        // HEADER con nombre usuario
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .background(MaterialTheme.colorScheme.primary)
+        ) {
+            Text(
+                text = "Categorías • Usuario: $username",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 8.dp)
+            )
+        }
+
+        // LISTA DE PRODUCTOS
+        LazyColumn(modifier = Modifier.weight(1f)) {
+
+            // Productos con su imagen, nombre y precio
+            val productos = listOf(
+                ProductoUi(R.drawable.charmanderdestruccionabrazadora, "Charmander destrucción Abrazadora", "15990"),
+                ProductoUi(R.drawable.mistypsyduck193182, "Misty Psyduck", "32990"),
+                ProductoUi(R.drawable.charizardgx, "Charizard GX", "49990"),
+                ProductoUi(R.drawable.magicthechainveil, "Magic The Chain Veil", "25990"),
+                ProductoUi(R.drawable.photocardsfesta2023bts, "Festa 2023", "9900")
+            )
+
+            // tarjeta por producto
+            items(productos.size) { index ->
+                val p = productos[index]
+                ProductCardCompact(
+                    imageRes = p.imageRes,
+                    nombre = p.nombre,
+                    precio = p.precio
+                ) {
+                    val nombreSeguro = Uri.encode(p.nombre)
+                    navController.navigate(
+                        "ProductoFormScreen?nombre=$nombreSeguro&precio=${p.precio}&imgRes=${p.imageRes}"
+                    )
+                }
+            }
+
+            // Opción extra: escanear QR
+            item {
+                Spacer(Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Default.QrCode, contentDescription = "Escanear QR")
+                        },
+                        headlineContent = { Text("Escanear código QR") },
+                        modifier = Modifier.clickable { navController.navigate("qrScanner") }
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+            }
+        }
+
+        // BOTÓN CERRAR SESIÓN
         Button(
             onClick = {
-                navController.navigate("login") {
-                    popUpTo(0) // Limpia toda la pila de navegación
-                }
+                navController.navigate("login") { popUpTo(0) }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp, vertical = 8.dp)
-                .height(50.dp)
+                .height(48.dp)
         ) {
             Text("Cerrar sesión")
         }
 
-
-
-
-        //Footer
+        // FOOTER inferior
         Text(
-            text="@ 2025 TodoKartasApp☻☻☻",
-            style=MaterialTheme.typography.bodySmall,
-            modifier=Modifier
+            text = "@ 2025 TodoKartasApp ☻☻☻",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             textAlign = TextAlign.Center
-
-
         )
+    }
+}
 
-
-
-    }// fin columna
-
-}// fin DrawerMENU
-
-
-
+// vista previa
 @Preview(showBackground = true)
 @Composable
-
-
-fun DrawerMenuPreview(){
+fun DrawerMenuPreview() {
     val navController = androidx.navigation.compose.rememberNavController()
-    DrawerMenu(username = "Usuario :)", navController = navController)
+    DrawerMenu(username = "admin", navController = navController)
 }

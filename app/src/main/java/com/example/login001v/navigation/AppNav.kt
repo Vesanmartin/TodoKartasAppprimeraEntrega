@@ -14,63 +14,71 @@ import com.example.login001v.view.ProductoFormScreen
 import com.example.login001v.view.QrRoute
 
 @Composable
-
-fun AppNav(){
-    // Crear navContoller para gestionar la navegacion
-
+fun AppNav() {
     val navController = rememberNavController()
 
-    NavHost(navController=navController, startDestination = "login"){
+    NavHost(
+        navController = navController,
+        startDestination = "login"
+    ) {
 
-        composable("login"){
+        // Login
+        composable("login") {
             LoginScreen(navController = navController)
-        }// fin composable 1
+        }
 
-       composable(
-      // route="muestraDatos/{username}",
-           route="DrawerMenu/{username}",
-           arguments = listOf(
-               navArgument("username"){
-                   type = NavType.StringType
-               }
-           )//fin listof
-
-       ) // fin composable 2
-       {// inicio back
-           backStackEntry->
-           val username = backStackEntry.arguments?.getString("username").orEmpty()
-   //        MuestraDatosScreen(username=username, navController = navController)
-           DrawerMenu(username=username, navController = navController)
-       } // fin termino back
-
-        // Enrutamiento para ProductoFormScreen
-
+        // MuestraDatosScreen con username
         composable(
-            route="ProductoFormScreen/{nombre}/{precio}",
-                    arguments = listOf(
-                    navArgument("nombre"){ type = NavType.StringType },
-                        navArgument("precio"){ type = NavType.StringType },
-                    )//fin listof
-        )// fin composable 3
+            route = "muestraDatos/{username}",
+            arguments = listOf(
+                navArgument("username") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username").orEmpty()
+            MuestraDatosScreen(username = username, navController = navController)
+        }
 
-        {// inicio back 2
-                backStackEntry->
-            val nombre = Uri.encode(backStackEntry.arguments?.getString("nombre") ?:"")
+        // DrawerMenu con username
+        composable(
+            route = "DrawerMenu/{username}",
+            arguments = listOf(
+                navArgument("username") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username").orEmpty()
+            DrawerMenu(username = username, navController = navController)
+        }
 
-            val precio = backStackEntry.arguments?.getString("precio") ?:""
+        // Detalle de producto (query params)
+        composable(
+            route = "ProductoFormScreen?nombre={nombre}&precio={precio}&imgRes={imgRes}",
+            arguments = listOf(
+                navArgument("nombre") { type = NavType.StringType; defaultValue = "" },
+                navArgument("precio") { type = NavType.StringType; defaultValue = "" },
+                // 👇 imgRes es un Int (resource id), no String
+                navArgument("imgRes") { type = NavType.IntType; defaultValue = 0 }
+            )
+        ) { backStackEntry ->
+            val nombre = Uri.decode(backStackEntry.arguments?.getString("nombre") ?: "")
+            val precio = backStackEntry.arguments?.getString("precio") ?: ""
+            // 👇 clave correcta "imgRes" y lectura como Int
+            val imgRes = backStackEntry.arguments?.getInt("imgRes") ?: 0
 
+            ProductoFormScreen(
+                navController = navController,
+                nombre = nombre,
+                precio = precio,
+                imgRes = imgRes
+            )
+        }
 
-            ProductoFormScreen( navController = navController,  nombre=nombre, precio=precio)
-        } // fin termino back 2
-
-        //inicio QR
+        // QR
         composable("qrScanner") {
             QrRoute(
                 navController = navController,
-                returnKey = "qr" // clave que se tomará al volver
+                returnKey = "qr"
             )
-        } //fin QR
-
-    }// fin NavHost
+        }
+    }
 }// fin AppNav
 
