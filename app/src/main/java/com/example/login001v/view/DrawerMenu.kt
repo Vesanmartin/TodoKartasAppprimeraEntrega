@@ -2,6 +2,12 @@ package com.example.login001v.view
 
 import android.net.Uri
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.LinearEasing // Para animación lineal
+import androidx.compose.animation.core.RepeatMode // Para repetir la animación
+import androidx.compose.animation.core.animateFloat // Para animar valores float
+import androidx.compose.animation.core.infiniteRepeatable // Para repetir infinitamente
+import androidx.compose.animation.core.rememberInfiniteTransition // Para crear transición infinita
+import androidx.compose.animation.core.tween // Para definir duración y tipo de animación
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,12 +16,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.login001v.R
 
-// tarjeta individual con nombre+precio
+// Tarjeta de producto
 @Composable
 private fun ProductCardCompact(
     @DrawableRes imageRes: Int,
@@ -42,7 +50,6 @@ private fun ProductCardCompact(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(8.dp)
         ) {
-            // Imagen pequeña a la izquierda
             Image(
                 painter = painterResource(imageRes),
                 contentDescription = nombre,
@@ -51,9 +58,7 @@ private fun ProductCardCompact(
                     .clip(MaterialTheme.shapes.medium),
                 contentScale = ContentScale.Crop
             )
-
             Spacer(Modifier.width(12.dp))
-
             Column {
                 Text(
                     text = nombre,
@@ -71,14 +76,13 @@ private fun ProductCardCompact(
     }
 }
 
-//modelo lista productos
-private data class ProductoUi(
+// Modelo compartido
+internal data class ProductoUi(
     @DrawableRes val imageRes: Int,
     val nombre: String,
     val precio: String
 )
 
-//menu lateral para lista productos
 @Composable
 fun DrawerMenu(
     username: String,
@@ -86,7 +90,7 @@ fun DrawerMenu(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // HEADER con nombre usuario
+        // HEADER
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,7 +98,7 @@ fun DrawerMenu(
                 .background(MaterialTheme.colorScheme.primary)
         ) {
             Text(
-                text = "Categorías • Usuario: $username",
+                text = "Usuario: $username",
                 style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
@@ -103,10 +107,60 @@ fun DrawerMenu(
             )
         }
 
+        // INICIO IMAGEN ANIMADA GIRANDO CONTINUAMENTE
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            val infiniteTransition = rememberInfiniteTransition(label = "rotationLoop")
+
+            val rotation by infiniteTransition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 3000, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "rotationAngle"
+            )
+
+            Image(
+                painter = painterResource(R.drawable.logotodokartasreload),
+                contentDescription = "Imagen girando",
+                modifier = Modifier
+                    .size(80.dp)
+                    .rotate(rotation),
+                contentScale = ContentScale.Fit
+            )
+        }
+        // FIN IMAGEN ANIMADA
+
+        // BOTÓN CATÁLOGO
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Button(
+                onClick = { navController.navigate("catalogo/$username") },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                modifier = Modifier
+                    .height(48.dp)
+                    .fillMaxWidth(0.9f)
+            ) {
+                Text("Ir al Catálogo Completo", fontWeight = FontWeight.Medium)
+            }
+        }
+
         // LISTA DE PRODUCTOS
         LazyColumn(modifier = Modifier.weight(1f)) {
-
-            // Productos con su imagen, nombre y precio
             val productos = listOf(
                 ProductoUi(R.drawable.charmanderdestruccionabrazadora, "Charmander destrucción Abrazadora", "15990"),
                 ProductoUi(R.drawable.mistypsyduck193182, "Misty Psyduck", "32990"),
@@ -115,7 +169,6 @@ fun DrawerMenu(
                 ProductoUi(R.drawable.photocardsfesta2023bts, "Festa 2023", "9900")
             )
 
-            // tarjeta por producto
             items(productos.size) { index ->
                 val p = productos[index]
                 ProductCardCompact(
@@ -130,7 +183,6 @@ fun DrawerMenu(
                 }
             }
 
-            // Opción extra: escanear QR
             item {
                 Spacer(Modifier.height(8.dp))
                 Card(
@@ -164,7 +216,7 @@ fun DrawerMenu(
             Text("Cerrar sesión")
         }
 
-        // FOOTER inferior
+        // FOOTER
         Text(
             text = "@ 2025 TodoKartasApp ☻☻☻",
             style = MaterialTheme.typography.bodySmall,
@@ -176,7 +228,6 @@ fun DrawerMenu(
     }
 }
 
-// vista previa
 @Preview(showBackground = true)
 @Composable
 fun DrawerMenuPreview() {
