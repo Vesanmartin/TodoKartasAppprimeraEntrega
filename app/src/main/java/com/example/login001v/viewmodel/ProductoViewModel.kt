@@ -16,7 +16,6 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
     // DAO
     private val productoDao = ProductoDatabase.getDatabase(application).productoDao()
 
-
     private val _productos = MutableStateFlow<List<Producto>>(emptyList())
     val productos: StateFlow<List<Producto>> = _productos
 
