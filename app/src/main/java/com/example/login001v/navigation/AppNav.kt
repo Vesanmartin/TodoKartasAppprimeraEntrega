@@ -2,17 +2,21 @@ package com.example.login001v.navigation
 
 import android.net.Uri
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.login001v.data.model.Post
 import com.example.login001v.ui.home.MuestraDatosScreen
 import com.example.login001v.ui.login.LoginScreen
 import com.example.login001v.view.CatalogoScreen
 import com.example.login001v.view.DrawerMenu
+import com.example.login001v.view.PostScreen
 import com.example.login001v.view.ProductoFormScreen
 import com.example.login001v.view.QrRoute
+import com.example.login001v.viewmodel.PostViewModel
 
 @Composable
 fun AppNav() {
@@ -73,5 +77,16 @@ fun AppNav() {
             val username = backStackEntry.arguments?.getString("username") ?: ""
             CatalogoScreen(username = username, navController = navController)
         }
+
+        // COMPOSABLE PARA INTEGRAR PostScreen
+       // *** RUTA DE BÚSQUEDA DE CARTAS (ACTUALIZADA) ***
+        composable("posts_list_route") {
+                // Instancia el nuevo ViewModel
+                val postViewModel: PostViewModel = viewModel()
+
+                // Muestra la nueva pantalla
+                PostScreen(viewModel = postViewModel)
+            }
+
     }
 }

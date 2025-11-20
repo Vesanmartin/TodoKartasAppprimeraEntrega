@@ -115,6 +115,9 @@ dependencies {
     androidTestImplementation("anrdoidx.compose.ui:ui-test-junit4:1.6.2")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
 
+    // Dependencia de Coil para Compose (se usa para cargar imagenes desde la api)
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

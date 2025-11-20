@@ -199,6 +199,28 @@ fun DrawerMenu(
                         modifier = Modifier.clickable { navController.navigate("qrScanner") }
                     )
                 }
+
+// === NUEVA OPCIÓN: NAVEGAR A POSTSCREEN ===
+                Spacer(Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            // Puedes cambiar el icono por uno más adecuado para Posts/API
+                            Icon(Icons.Default.QrCode, contentDescription = "Ver Posts")
+                        },
+                        headlineContent = { Text("Ver Listado de Posts API") },
+                        modifier = Modifier.clickable {
+                            // Navegación a la ruta definida en AppNav
+                            navController.navigate("posts_list_route")
+                        }
+                    )
+                }
+
                 Spacer(Modifier.height(8.dp))
             }
         }
