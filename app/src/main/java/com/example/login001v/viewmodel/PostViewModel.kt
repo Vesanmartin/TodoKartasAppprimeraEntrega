@@ -23,7 +23,7 @@ class PostViewModel: ViewModel(){
     val searchQuery: StateFlow<String> = _searchQuery
 
     // 2. Estado de la lista de cartas obtenidas
-    private val _cardList = MutableStateFlow<List<Post>>(emptyList())
+    private val _cardList = MutableStateFlow<List<Post>>(emptyList()) //Aquí se cambia el internal para los test
     val cardList: StateFlow<List<Post>> = _cardList
 
     // 3. Estado de la carga (opcional, pero útil)

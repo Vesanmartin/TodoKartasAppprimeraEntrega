@@ -101,12 +101,19 @@ dependencies {
     //corrutinas para trabajo asincrono
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
+    // Coroutines Test
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+
     // Kotest
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
 
     //JUnit 5
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
+
+    // AndroidX Test
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
 
     // MockK
     testImplementation("io.mockk:mockk:1.13.10")
@@ -129,6 +136,14 @@ dependencies {
     // Obligatorio para usar JUnit 5
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()  // <<< NECESARIO
+
+        testLogging {
+            events("passed", "failed", "skipped")
+        }
     }
 
 }
