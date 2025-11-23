@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.login001v.ui.home.MuestraDatosScreen
 import com.example.login001v.ui.login.LoginScreen
+import com.example.login001v.ui.login.RegistroScreen
 import com.example.login001v.view.CatalogoScreen
 import com.example.login001v.view.DrawerMenu
 import com.example.login001v.view.ProductoFormScreen
@@ -24,6 +25,11 @@ fun AppNav() {
     ) {
         composable("login") {
             LoginScreen(navController = navController)
+        }
+
+        // NUEVA RUTA PARA CREAR CUENTA:CHICOS, verifiquen!
+        composable("registro") {
+            RegistroScreen(navController = navController)
         }
 
         composable(
@@ -74,4 +80,4 @@ fun AppNav() {
             CatalogoScreen(username = username, navController = navController)
         }
     }
-}
+}// fin AppNav

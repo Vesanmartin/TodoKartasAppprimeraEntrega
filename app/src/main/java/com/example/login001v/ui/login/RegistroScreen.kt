@@ -21,26 +21,23 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.login001v.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen(
+fun RegistroScreen(
     navController: NavController
 ) {
-    // ViewModel
+    // ViewModel compartido con Login
     val context = LocalContext.current.applicationContext as Application
-    val vm: LoginViewModel = viewModel(
-        factory = LoginViewModelFactory(context)
-    )
-
+    val vm: LoginViewModel = viewModel(factory = LoginViewModelFactory(context))
     val state = vm.uiState
+
     var showPass by remember { mutableStateOf(false) }
+    var showPass2 by remember { mutableStateOf(false) }
 
     val colorScheme = darkColorScheme(
         primary = Color(0xFF5D28B7),
@@ -53,25 +50,24 @@ fun LoginScreen(
 
         Box(Modifier.fillMaxSize()) {
 
-            // Fondo desenfocado
+            // Fondo blur : OJO quedo como el el login transparente
             Image(
                 painter = painterResource(R.drawable.fondobannermagic2),
                 contentDescription = null,
                 modifier = Modifier
                     .matchParentSize()
-                    .blur(16.dp)
-                    .background(Color.Black),
+                    .blur(16.dp),
                 contentScale = ContentScale.Crop
             )
 
-            // Velo superior
+            // Capa oscura
             Box(
                 modifier = Modifier
                     .matchParentSize()
                     .background(Color.Black.copy(alpha = 0.45f))
             )
 
-            // Gradiente
+            // Gradiente para profundizar
             Box(
                 modifier = Modifier
                     .matchParentSize()
@@ -88,7 +84,7 @@ fun LoginScreen(
                 containerColor = Color.Transparent,
                 topBar = {
                     TopAppBar(
-                        title = { Text("Proyecto semestre: TodoKartas") },
+                        title = { Text("Crear cuenta") },
                         colors = TopAppBarDefaults.topAppBarColors(
                             containerColor = Color.Transparent,
                             titleContentColor = Color.White
@@ -103,18 +99,16 @@ fun LoginScreen(
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-
                     Card(
                         modifier = Modifier
                             .fillMaxWidth(0.95f)
-                            .fillMaxHeight(0.85f),
-                        shape = RoundedCornerShape(20.dp),
+                            .fillMaxHeight(0.90f),
+                        shape = RoundedCornerShape(22.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFF1A0928).copy(alpha = 0.65f)
                         ),
                         elevation = CardDefaults.cardElevation(8.dp)
                     ) {
-
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -123,7 +117,7 @@ fun LoginScreen(
                         ) {
 
                             Text(
-                                "¡Bienvenido!",
+                                "Crear cuenta TodoKartas",
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
@@ -135,43 +129,37 @@ fun LoginScreen(
                                 contentDescription = "Logo App",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(200.dp),
+                                    .height(160.dp),
                                 contentScale = ContentScale.Fit
                             )
 
                             Spacer(Modifier.height(16.dp))
 
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    "TodoKartas",
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White.copy(alpha = 0.9f)
-                                )
-                                Text(
-                                    "La mejor mano",
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White.copy(alpha = 0.9f)
-                                )
-                            }
-
-                            Spacer(Modifier.height(12.dp))
-
-                            // Usuario
+                            // USERNAME
                             OutlinedTextField(
                                 value = state.username,
                                 onValueChange = vm::onUsernameChange,
-                                label = { Text("Usuario") },
+                                label = { Text("Nombre de usuario") },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = textFieldColors()
                             )
 
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(10.dp))
 
-                            // Contraseña
+                            // EMAIL
+                            OutlinedTextField(
+                                value = state.email,
+                                onValueChange = vm::onEmailChange,
+                                label = { Text("Correo electrónico") },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = textFieldColors()
+                            )
+
+                            Spacer(Modifier.height(10.dp))
+
+                            // CONTRASEÑA
                             OutlinedTextField(
                                 value = state.password,
                                 onValueChange = vm::onPasswordChange,
@@ -182,7 +170,28 @@ fun LoginScreen(
                                     IconButton(onClick = { showPass = !showPass }) {
                                         Icon(
                                             imageVector = if (showPass) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                            contentDescription = "Toggle password"
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = textFieldColors()
+                            )
+
+                            Spacer(Modifier.height(10.dp))
+
+                            // REPETIR CONTRASEÑA
+                            OutlinedTextField(
+                                value = state.confirmPassword,
+                                onValueChange = vm::onConfirmPasswordChange,
+                                label = { Text("Repetir contraseña") },
+                                singleLine = true,
+                                visualTransformation = if (showPass2) VisualTransformation.None else PasswordVisualTransformation(),
+                                trailingIcon = {
+                                    IconButton(onClick = { showPass2 = !showPass2 }) {
+                                        Icon(
+                                            imageVector = if (showPass2) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                            contentDescription = null
                                         )
                                     }
                                 },
@@ -194,74 +203,40 @@ fun LoginScreen(
                                 Spacer(Modifier.height(8.dp))
                                 Text(
                                     text = state.error!!,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    color = Color.Red,
                                     fontWeight = FontWeight.Bold
                                 )
                             }
 
                             Spacer(Modifier.height(20.dp))
 
-                            // Botón iniciar sesión
                             Button(
                                 onClick = {
-                                    vm.submit { user ->
-                                        navController.navigate("DrawerMenu/$user") {
-                                            popUpTo("login") { inclusive = true }
-                                            launchSingleTop = true
-                                        }
+                                    vm.register {
+                                        navController.popBackStack()
                                     }
                                 },
-                                enabled = !state.isLoading,
                                 modifier = Modifier
-                                    .fillMaxWidth(0.7f)
+                                    .fillMaxWidth(0.8f)
                                     .height(52.dp)
                             ) {
-                                Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
+                                Text("Registrar usuario")
                             }
 
                             Spacer(Modifier.height(12.dp))
 
-                            // botón de registro
                             TextButton(
-                                onClick = { navController.navigate("registro") }
+                                onClick = { navController.popBackStack() }
                             ) {
                                 Text(
-                                    "¿No tienes cuenta? Crear cuenta",
+                                    "¿Ya tienes cuenta? Inicia sesión",
                                     color = Color.White.copy(alpha = 0.9f)
                                 )
                             }
-                            // FIN Registro
                         }
                     }
                 }
             }
         }
     }
-}
-
-// Helper para los colores de TextField
-@Composable
-fun textFieldColors() = TextFieldDefaults.colors(
-    focusedContainerColor = Color.White.copy(alpha = 0.12f),
-    unfocusedContainerColor = Color.White.copy(alpha = 0.10f),
-    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-    unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f),
-    cursorColor = MaterialTheme.colorScheme.primary,
-    focusedLabelColor = Color.White,
-    unfocusedLabelColor = Color.White.copy(alpha = 0.8f),
-
-    //Colores de texto: Ojo me genero problemas porque no se veian
-
-    focusedTextColor = Color.White,
-    unfocusedTextColor = Color.White,
-    disabledTextColor = Color.White.copy(alpha = 0.5f),
-    errorTextColor = Color.Red
-
-)
-
-@Preview(showBackground = true)
-@Composable
-fun LoginScreenPreview() {
-    val navController = rememberNavController()
-    LoginScreen(navController = navController)
-}
+} // fin registro screen
