@@ -1,5 +1,6 @@
 package com.example.login001v.ui.login
 
+import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -29,9 +31,14 @@ import com.example.login001v.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    navController: NavController,
-    vm: LoginViewModel = viewModel()
+    navController: NavController
 ) {
+    // ViewModel
+    val context = LocalContext.current.applicationContext as Application
+    val vm: LoginViewModel = viewModel(
+        factory = LoginViewModelFactory(context)
+    )
+
     val state = vm.uiState
     var showPass by remember { mutableStateOf(false) }
 
@@ -44,29 +51,29 @@ fun LoginScreen(
 
     MaterialTheme(colorScheme = colorScheme) {
 
-        // Capa base: imagen de fondo suavizada + velo
         Box(Modifier.fillMaxSize()) {
 
+            // Fondo desenfocado
             Image(
                 painter = painterResource(R.drawable.fondobannermagic2),
                 contentDescription = null,
                 modifier = Modifier
                     .matchParentSize()
                     .blur(16.dp)
-                    .background(Color.Black), // evita parpadeos al cargar
+                    .background(Color.Black),
                 contentScale = ContentScale.Crop
             )
 
-            // Velo para bajar contraste del fondo
+            // Velo superior
             Box(
-                Modifier
+                modifier = Modifier
                     .matchParentSize()
                     .background(Color.Black.copy(alpha = 0.45f))
             )
 
-            // Gradiente sutil para reforzar legibilidad arriba/abajo (opcional)
+            // Gradiente
             Box(
-                Modifier
+                modifier = Modifier
                     .matchParentSize()
                     .background(
                         Brush.verticalGradient(
@@ -90,32 +97,31 @@ fun LoginScreen(
                 }
             ) { innerPadding ->
 
-                // Contenedor central AGRANDADO y translúcido
                 Box(
                     modifier = Modifier
                         .padding(innerPadding)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
+
                     Card(
                         modifier = Modifier
-
                             .fillMaxWidth(0.95f)
-                            .fillMaxHeight(0.85f)
-                            .wrapContentHeight(),
+                            .fillMaxHeight(0.85f),
                         shape = RoundedCornerShape(20.dp),
-                        // fondo translúcido para mayor contraste con el fondo
                         colors = CardDefaults.cardColors(
                             containerColor = Color(0xFF1A0928).copy(alpha = 0.65f)
                         ),
                         elevation = CardDefaults.cardElevation(8.dp)
                     ) {
+
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(22.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
+
                             Text(
                                 "¡Bienvenido!",
                                 style = MaterialTheme.typography.headlineMedium,
@@ -141,17 +147,13 @@ fun LoginScreen(
                             ) {
                                 Text(
                                     "TodoKartas",
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White.copy(alpha = 0.9f)
-                                    )
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White.copy(alpha = 0.9f)
                                 )
                                 Text(
                                     "La mejor mano",
-                                    style = MaterialTheme.typography.bodyLarge.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color.White.copy(alpha = 0.9f)
-                                    )
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White.copy(alpha = 0.9f)
                                 )
                             }
 
@@ -164,16 +166,7 @@ fun LoginScreen(
                                 label = { Text("Usuario") },
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White.copy(alpha = 0.12f),
-                                    unfocusedContainerColor = Color.White.copy(alpha = 0.10f),
-                                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f),
-                                    cursorColor = MaterialTheme.colorScheme.primary,
-                                    focusedLabelColor = Color.White,
-                                    unfocusedLabelColor = Color.White.copy(alpha = 0.8f)
-
-                                )
+                                colors = textFieldColors()
                             )
 
                             Spacer(Modifier.height(8.dp))
@@ -189,26 +182,18 @@ fun LoginScreen(
                                     IconButton(onClick = { showPass = !showPass }) {
                                         Icon(
                                             imageVector = if (showPass) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                            contentDescription = if (showPass) "Ocultar" else "Ver"
+                                            contentDescription = "Toggle password"
                                         )
                                     }
                                 },
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.White.copy(alpha = 0.12f),
-                                    unfocusedContainerColor = Color.White.copy(alpha = 0.10f),
-                                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                                    unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f),
-                                    cursorColor = MaterialTheme.colorScheme.primary,
-                                    focusedLabelColor = Color.White,
-                                    unfocusedLabelColor = Color.White.copy(alpha = 0.8f)
-                                )
+                                colors = textFieldColors()
                             )
 
                             if (state.error != null) {
                                 Spacer(Modifier.height(8.dp))
                                 Text(
-                                    text = state.error ?: "",
+                                    text = state.error!!,
                                     color = MaterialTheme.colorScheme.primary,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -216,6 +201,7 @@ fun LoginScreen(
 
                             Spacer(Modifier.height(20.dp))
 
+                            // Botón iniciar sesión
                             Button(
                                 onClick = {
                                     vm.submit { user ->
@@ -233,7 +219,18 @@ fun LoginScreen(
                                 Text(if (state.isLoading) "Validando..." else "Iniciar sesión")
                             }
 
-                            Spacer(Modifier.height(8.dp))
+                            Spacer(Modifier.height(12.dp))
+
+                            // botón de registro
+                            TextButton(
+                                onClick = { navController.navigate("registro") }
+                            ) {
+                                Text(
+                                    "¿No tienes cuenta? Crear cuenta",
+                                    color = Color.White.copy(alpha = 0.9f)
+                                )
+                            }
+                            // FIN Registro
                         }
                     }
                 }
@@ -242,10 +239,29 @@ fun LoginScreen(
     }
 }
 
+// Helper para los colores de TextField
+@Composable
+fun textFieldColors() = TextFieldDefaults.colors(
+    focusedContainerColor = Color.White.copy(alpha = 0.12f),
+    unfocusedContainerColor = Color.White.copy(alpha = 0.10f),
+    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+    unfocusedIndicatorColor = Color.White.copy(alpha = 0.7f),
+    cursorColor = MaterialTheme.colorScheme.primary,
+    focusedLabelColor = Color.White,
+    unfocusedLabelColor = Color.White.copy(alpha = 0.8f),
+
+    //Colores de texto: Ojo me genero problemas porque no se veian
+
+    focusedTextColor = Color.White,
+    unfocusedTextColor = Color.White,
+    disabledTextColor = Color.White.copy(alpha = 0.5f),
+    errorTextColor = Color.Red
+
+)
+
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     val navController = rememberNavController()
-    val vm = LoginViewModel()
-    LoginScreen(navController = navController, vm = vm)
+    LoginScreen(navController = navController)
 }
