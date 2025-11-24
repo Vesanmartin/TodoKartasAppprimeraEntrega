@@ -11,16 +11,20 @@ import androidx.navigation.navArgument
 import com.example.login001v.data.model.Post
 import com.example.login001v.ui.home.MuestraDatosScreen
 import com.example.login001v.ui.login.LoginScreen
+import com.example.login001v.view.CarritoScreen
 import com.example.login001v.view.CatalogoScreen
 import com.example.login001v.view.DrawerMenu
 import com.example.login001v.view.PostScreen
 import com.example.login001v.view.ProductoFormScreen
 import com.example.login001v.view.QrRoute
+import com.example.login001v.viewmodel.CartViewModel
 import com.example.login001v.viewmodel.PostViewModel
 
 @Composable
 fun AppNav() {
     val navController = rememberNavController()
+
+    val cartViewModel: CartViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -61,7 +65,7 @@ fun AppNav() {
             val nombre = Uri.decode(backStackEntry.arguments?.getString("nombre") ?: "")
             val precio = backStackEntry.arguments?.getString("precio") ?: ""
             val imgRes = backStackEntry.arguments?.getInt("imgRes") ?: 0
-            ProductoFormScreen(navController, nombre, precio, imgRes)
+            ProductoFormScreen(navController, nombre, precio, imgRes, cartViewModel)
         }
 
         composable("qrScanner") {
@@ -87,6 +91,11 @@ fun AppNav() {
                 // Muestra la nueva pantalla
                 PostScreen(viewModel = postViewModel)
             }
+
+
+        composable("cart_route") {
+            CarritoScreen(navController = navController, cartViewModel = cartViewModel)
+        }
 
     }
 }
