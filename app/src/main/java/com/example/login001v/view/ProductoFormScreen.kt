@@ -1,6 +1,7 @@
 package com.example.login001v.view
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,240 +19,273 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.lifecycle.viewmodel.compose.viewModel // Importar para obtener el ViewModel
 import com.example.login001v.R
-
+import com.example.login001v.data.model.CartItem // Importar el modelo CartItem
+import com.example.login001v.viewmodel.CartViewModel // Importar el ViewModel del carrito
 
 @OptIn(ExperimentalMaterial3Api::class)
-// @OptIn permite el uso de APIs marcadas como "experimentales" en Material 3 (la biblioteca de diseño de Android ejemplo BottomAppBar).
+// @OptIn permite el uso de APIs marcadas como "experimentales" en Material 3
 @Composable
 fun ProductoFormScreen(
     navController: NavController,
     nombre: String,
     precio: String,
-    imgRes: Int
+    imgRes: Int,
+    // Inyectamos el CartViewModel. Si se usa NavCompose, se puede obtener con viewModel()
+    cartViewModel: CartViewModel = viewModel()
 ) {
     // Convertir precio a Int
     val precioUnitario = precio.toIntOrNull() ?: 0
 
-    // Estados
-    var cantidad by remember { mutableStateOf(1) }
-    var conCertificacion by remember { mutableStateOf(false) }
+    // 1. Observamos el estado del carrito para este producto
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    // Buscamos si el producto actual ya está en el carrito
+    val currentCartItem = cartItems.find { it.nombre == nombre }
 
-    // Calcular total
+    // 2. Inicializamos los estados de cantidad y certificación con los valores del carrito, si existen
+    var cantidad by remember { mutableStateOf(currentCartItem?.cantidad ?: 1) }
+    var conCertificacion by remember { mutableStateOf(currentCartItem?.conCertificacion ?: false) }
+
+    // 3. Calculamos el subtotal y total basado en los estados
     val subtotal = precioUnitario * cantidad
     val total = subtotal + if (conCertificacion) 30000 else 0
 
-    val drawableId = if (imgRes != 0) imgRes else R.drawable.charmanderdestruccionabrazadora
+
+    // Lógica para elevar la Card (solo visual)
+    val shadowElevation by animateDpAsState(
+        targetValue = if (conCertificacion) 8.dp else 2.dp,
+        label = "shadowElevationAnimation"
+    )
 
     Scaffold(
-        bottomBar = {
-            // INICIO BOTTOM APP BAR
-            BottomAppBar {
-                Text(
-                    text = "Tienda TodoKartas",
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
-            // FIN BOTTOM APP BAR
-        }
-    ) { innerPadding ->
-
-        // INICIO CONTENIDO PRINCIPAL
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            // INICIO IMAGEN GRANDE (con animación y sin recortes)
-            item {
-                var expanded by remember { mutableStateOf(false) }
-                val imageHeight by animateDpAsState(
-                    targetValue = if (expanded) 400.dp else 320.dp,
-                    label = "imageHeight"
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(imageHeight)
-                        .padding(vertical = 8.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = drawableId),
-                        contentDescription = nombre,
+        topBar = {
+            TopAppBar(
+                title = { Text(nombre) }
+            )
+        },
+        content = { innerPadding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(top = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // INICIO IMAGEN Y DESCRIPCIÓN
+                item {
+                    // Card con sombra que depende de conCertificacion
+                    Card(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .clickable { expanded = !expanded }
-                            .padding(8.dp)
-                            .shadow(if (expanded) 16.dp else 6.dp, shape = MaterialTheme.shapes.medium),
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Fit
-                    )
-                }
-
-                Spacer(Modifier.height(12.dp))
-                Text(text = nombre, style = MaterialTheme.typography.headlineSmall)
-                Text(text = "Precio unitario: $${precio}", style = MaterialTheme.typography.titleMedium)
-            }
-            // FIN IMAGEN GRANDE
-
-            // INICIO CONTADOR CON ETIQUETA
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("Cantidad", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(12.dp))
-
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
+                            .fillMaxWidth()
+                            .shadow(shadowElevation) // Sombra dinámica
+                            .clickable { conCertificacion = !conCertificacion }
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
                         ) {
-                            // Subtotal a la izquierda
+                            Image(
+                                painter = painterResource(id = imgRes),
+                                contentDescription = "Imagen de $nombre",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "$${subtotal}",
+                                text = nombre,
                                 style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "Precio Unitario: $$precio",
+                                style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.primary
                             )
+                        }
+                    }
+                }
+                // FIN IMAGEN Y DESCRIPCIÓN
 
-                            // Controles +/-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                OutlinedButton(
-                                    onClick = { if (cantidad > 1) cantidad-- },
-                                    modifier = Modifier.size(40.dp)
-                                ) { Text("-") }
-
-                                Spacer(Modifier.width(12.dp))
-                                Text(cantidad.toString(), style = MaterialTheme.typography.headlineMedium)
-                                Spacer(Modifier.width(12.dp))
-
-                                OutlinedButton(
-                                    onClick = { cantidad++ },
-                                    modifier = Modifier.size(40.dp)
-                                ) { Text("+") }
+                // INICIO SELECCIÓN DE CANTIDAD
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("Cantidad:", style = MaterialTheme.typography.titleMedium)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            // Botón de Restar
+                            Button(
+                                onClick = { if (cantidad > 1) cantidad-- },
+                                enabled = cantidad > 1,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            ) {
+                                Text("-", color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = cantidad.toString(),
+                                style = MaterialTheme.typography.headlineSmall
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            // Botón de Sumar
+                            Button(
+                                onClick = { cantidad++ },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            ) {
+                                Text("+", color = MaterialTheme.colorScheme.onSecondaryContainer)
                             }
                         }
                     }
                 }
-            }
-            // FIN CONTADOR CON ETIQUETA
+                // FIN SELECCIÓN DE CANTIDAD
 
-            // INICIO CERTIFICACIÓN PSA
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Certificación PSA", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-                            Text("+ $30.000", style = MaterialTheme.typography.titleMedium)
+                // INICIO SWITCH CERTIFICACIÓN
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { conCertificacion = !conCertificacion }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                "Certificación de Originalidad",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(
+                                "Costo Adicional: $30.000 (Incluye análisis experto)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-
-                        Spacer(Modifier.height(12.dp))
-
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            // Botón "No"
-                            Button(
-                                onClick = { conCertificacion = false },
-                                colors = if (!conCertificacion)
-                                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                                else
-                                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("No", color = if (!conCertificacion) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-
-                            Spacer(Modifier.width(8.dp))
-
-                            // Botón "Sí"
-                            Button(
-                                onClick = { conCertificacion = true },
-                                colors = if (conCertificacion)
-                                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                                else
-                                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text("Sí", color = if (conCertificacion) Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    }
-                }
-            }
-            // FIN CERTIFICACIÓN PSA
-
-            // INICIO TOTAL
-            item {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF3E5F5))
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text("Total", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineSmall)
-                        Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "$${total}",
-                            style = MaterialTheme.typography.displayMedium,
-                            color = MaterialTheme.colorScheme.primary
+                        Switch(
+                            checked = conCertificacion,
+                            onCheckedChange = { conCertificacion = it }
                         )
                     }
+                    Divider()
                 }
-            }
-            // FIN TOTAL
+                // FIN SWITCH CERTIFICACIÓN
 
-            // INICIO BOTÓN CONFIRMAR
-            item {
-                Button(
-                    onClick = {
-                        // Aquí iría la lógica de confirmación
-                        navController.popBackStack()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
-                ) {
-                    Text("Confirmar Pedido", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-            }
-            // FIN BOTÓN CONFIRMAR
-
-            // INICIO BOTÓN VOLVER
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    OutlinedButton(
-                        onClick = { navController.popBackStack() },
-                        modifier = Modifier
-                            .fillMaxWidth(0.7f)
-                            .height(48.dp)
-                    ) {
-                        Text("Volver")
+                // INICIO SUBTOTAL Y TOTAL
+                item {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Subtotal:", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                text = "$${subtotal}",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text("Total:", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold)
+                            Text(
+                                text = "$${total}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
+                // FIN TOTAL
+
+                // 4. INICIO BOTÓN AÑADIR/ACTUALIZAR CARRITO
+                item {
+                    // Creamos el CartItem con los valores actuales
+                    val itemToAdd = CartItem(
+                        nombre = nombre,
+                        precioUnitario = precioUnitario,
+                        cantidad = cantidad,
+                        conCertificacion = conCertificacion
+                    )
+
+                    Button(
+                        onClick = {
+                            // Lógica para añadir/actualizar el producto en el carrito
+                            cartViewModel.addItem(itemToAdd)
+                            // Opcional: Volver a la pantalla anterior después de añadir
+                            navController.popBackStack()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                    ) {
+                        val buttonText = if (currentCartItem != null) {
+                            "Actualizar Carrito (${cantidad} unidades)"
+                        } else {
+                            "Añadir al Carrito (${cantidad} unidades)"
+                        }
+                        Text(buttonText, color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+                // FIN BOTÓN AÑADIR/ACTUALIZAR
+
+                // 5. INICIO BOTÓN ELIMINAR DEL CARRITO (Solo visible si ya está en el carrito)
+                if (currentCartItem != null) {
+                    item {
+                        OutlinedButton(
+                            onClick = {
+                                // Lógica para eliminar el producto del carrito
+                                cartViewModel.removeItem(currentCartItem)
+                                // Opcional: Volver a la pantalla anterior después de eliminar
+                                navController.popBackStack()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp)
+                                .padding(vertical = 4.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.error // Color rojo para acción de eliminar
+                            ),
+                            border = BorderStroke(
+                                width = 1.dp, // Grosor estándar para OutlinedButton
+                                color = MaterialTheme.colorScheme.error // El color de la línea del borde
+                            )
+                        ) {
+                            Text("Eliminar del Carrito")
+                        }
+                    }
+                }
+                // FIN BOTÓN ELIMINAR
+
+                // INICIO BOTÓN VOLVER
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        OutlinedButton(
+                            onClick = { navController.popBackStack() },
+                            modifier = Modifier
+                                .fillMaxWidth(0.7f)
+                                .height(48.dp)
+                        ) {
+                            Text("Volver")
+                        }
+                    }
+                }
+                // FIN BOTÓN VOLVER
             }
-            // FIN BOTÓN VOLVER
         }
-        // FIN CONTENIDO PRINCIPAL
-    }
+    )
 }

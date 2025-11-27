@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -199,6 +200,50 @@ fun DrawerMenu(
                         modifier = Modifier.clickable { navController.navigate("qrScanner") }
                     )
                 }
+
+                Spacer(Modifier.height(8.dp))
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Default.ShoppingCart, contentDescription = "Ver Carrito")
+                        },
+                        headlineContent = { Text("Ver Carrito de Compras") },
+                        modifier = Modifier.clickable {
+                            // Navegación a la ruta del carrito
+                            navController.navigate("cart_route")
+                        }
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                // FIN: OPCIÓN VER CARRITO
+
+// === NUEVA OPCIÓN: NAVEGAR A POSTSCREEN ===
+                Spacer(Modifier.height(8.dp))
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            // Puedes cambiar el icono por uno más adecuado para Posts/API
+                            Icon(Icons.Default.QrCode, contentDescription = "Ver Posts")
+                        },
+                        headlineContent = { Text("Ver Listado de Posts API") },
+                        modifier = Modifier.clickable {
+                            // Navegación a la ruta definida en AppNav
+                            navController.navigate("posts_list_route")
+                        }
+                    )
+                }
+
                 Spacer(Modifier.height(8.dp))
             }
         }

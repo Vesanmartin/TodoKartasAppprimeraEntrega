@@ -210,3 +210,7 @@ fun CatalogoScreen(
         // FIN FOOTER
     }
 }
+
+
+
+
