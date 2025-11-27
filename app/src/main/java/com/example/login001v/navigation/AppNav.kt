@@ -12,6 +12,7 @@ import com.example.login001v.data.model.Post
 import com.example.login001v.ui.home.MuestraDatosScreen
 import com.example.login001v.ui.login.LoginScreen
 import com.example.login001v.view.CarritoScreen
+import com.example.login001v.ui.login.RegistroScreen
 import com.example.login001v.view.CatalogoScreen
 import com.example.login001v.view.DrawerMenu
 import com.example.login001v.view.PostScreen
@@ -32,6 +33,11 @@ fun AppNav() {
     ) {
         composable("login") {
             LoginScreen(navController = navController)
+        }
+
+        // NUEVA RUTA PARA CREAR CUENTA:CHICOS, verifiquen!
+        composable("registro") {
+            RegistroScreen(navController = navController)
         }
 
         composable(
@@ -98,4 +104,4 @@ fun AppNav() {
         }
 
     }
-}
+}// fin AppNav
