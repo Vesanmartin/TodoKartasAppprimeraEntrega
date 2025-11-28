@@ -1,19 +1,19 @@
 package com.example.login001v.view
-
 import android.net.Uri
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.core.LinearEasing // Para animación lineal
-import androidx.compose.animation.core.RepeatMode // Para repetir la animación
-import androidx.compose.animation.core.animateFloat // Para animar valores float
-import androidx.compose.animation.core.infiniteRepeatable // Para repetir infinitamente
-import androidx.compose.animation.core.rememberInfiniteTransition // Para crear transición infinita
-import androidx.compose.animation.core.tween // Para definir duración y tipo de animación
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -30,9 +30,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.login001v.R
+import com.example.login001v.viewmodel.CartViewModel
 
-// Tarjeta de producto
+// Tarjeta compacta para mostrar productos destacados en el menú
 @Composable
 private fun ProductCardCompact(
     @DrawableRes imageRes: Int,
@@ -77,7 +79,7 @@ private fun ProductCardCompact(
     }
 }
 
-// Modelo compartido
+// Lista de productos destacados
 internal data class ProductoUi(
     @DrawableRes val imageRes: Int,
     val nombre: String,
@@ -87,11 +89,16 @@ internal data class ProductoUi(
 @Composable
 fun DrawerMenu(
     username: String,
-    navController: NavController
+    navController: NavController,
+    cartViewModel: CartViewModel
 ) {
+
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val totalItems = cartItems.sumOf { it.cantidad }
+
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // HEADER
+        // HEADER SUPERIOR
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -108,7 +115,7 @@ fun DrawerMenu(
             )
         }
 
-        // INICIO IMAGEN ANIMADA GIRANDO CONTINUAMENTE
+        //  LOGO GIRANDO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -130,16 +137,15 @@ fun DrawerMenu(
 
             Image(
                 painter = painterResource(R.drawable.logotodokartasreload),
-                contentDescription = "Imagen girando",
+                contentDescription = "Logo TodoKartas",
                 modifier = Modifier
                     .size(80.dp)
                     .rotate(rotation),
                 contentScale = ContentScale.Fit
             )
         }
-        // FIN IMAGEN ANIMADA
 
-        // BOTÓN CATÁLOGO
+        // BOTÓN CATÁLOGO COMPLETO
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -160,14 +166,36 @@ fun DrawerMenu(
             }
         }
 
-        // LISTA DE PRODUCTOS
+        //  LISTA DE PRODUCTOS + OPCIONES
         LazyColumn(modifier = Modifier.weight(1f)) {
+
+            // Productos destacados
             val productos = listOf(
-                ProductoUi(R.drawable.charmanderdestruccionabrazadora, "Charmander destrucción Abrazadora", "15990"),
-                ProductoUi(R.drawable.mistypsyduck193182, "Misty Psyduck", "32990"),
-                ProductoUi(R.drawable.charizardgx, "Charizard GX", "49990"),
-                ProductoUi(R.drawable.magicthechainveil, "Magic The Chain Veil", "25990"),
-                ProductoUi(R.drawable.photocardsfesta2023bts, "Festa 2023", "9900")
+                ProductoUi(
+                    R.drawable.charmanderdestruccionabrazadora,
+                    "Charmander destrucción Abrazadora",
+                    "15990"
+                ),
+                ProductoUi(
+                    R.drawable.mistypsyduck193182,
+                    "Misty Psyduck",
+                    "32990"
+                ),
+                ProductoUi(
+                    R.drawable.charizardgx,
+                    "Charizard GX",
+                    "49990"
+                ),
+                ProductoUi(
+                    R.drawable.magicthechainveil,
+                    "Magic The Chain Veil",
+                    "25990"
+                ),
+                ProductoUi(
+                    R.drawable.photocardsfesta2023bts,
+                    "Festa 2023",
+                    "9900"
+                )
             )
 
             items(productos.size) { index ->
@@ -177,6 +205,7 @@ fun DrawerMenu(
                     nombre = p.nombre,
                     precio = p.precio
                 ) {
+                    // Al tocar una carta vamos a la pantalla de detalle/compra
                     val nombreSeguro = Uri.encode(p.nombre)
                     navController.navigate(
                         "ProductoFormScreen?nombre=$nombreSeguro&precio=${p.precio}&imgRes=${p.imageRes}"
@@ -184,8 +213,10 @@ fun DrawerMenu(
                 }
             }
 
+            //  OPCIÓN: ESCANEAR QR
             item {
                 Spacer(Modifier.height(8.dp))
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -197,34 +228,15 @@ fun DrawerMenu(
                             Icon(Icons.Default.QrCode, contentDescription = "Escanear QR")
                         },
                         headlineContent = { Text("Escanear código QR") },
-                        modifier = Modifier.clickable { navController.navigate("qrScanner") }
-                    )
-                }
-
-                Spacer(Modifier.height(8.dp))
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    ListItem(
-                        leadingContent = {
-                            Icon(Icons.Default.ShoppingCart, contentDescription = "Ver Carrito")
-                        },
-                        headlineContent = { Text("Ver Carrito de Compras") },
                         modifier = Modifier.clickable {
-                            // Navegación a la ruta del carrito
-                            navController.navigate("cart_route")
+                            navController.navigate("qrScanner")
                         }
                     )
                 }
-                Spacer(Modifier.height(8.dp))
-                // FIN: OPCIÓN VER CARRITO
 
-// === NUEVA OPCIÓN: NAVEGAR A POSTSCREEN ===
                 Spacer(Modifier.height(8.dp))
+
+                // OPCIÓN: VER CARRITO
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -233,12 +245,42 @@ fun DrawerMenu(
                 ) {
                     ListItem(
                         leadingContent = {
-                            // Puedes cambiar el icono por uno más adecuado para Posts/API
-                            Icon(Icons.Default.QrCode, contentDescription = "Ver Posts")
+                            Icon(Icons.Default.ShoppingCart, contentDescription = "Ver Carrito")
+                        },
+                        headlineContent = {
+                            val texto = if (totalItems > 0)
+                                "Ver Carrito de Compras ($totalItems)"
+                            else
+                                "Ver Carrito de Compras (vacío)"
+                            Text(texto)
+                        },
+                        supportingContent = {
+                            if (totalItems > 0) {
+                                Text("Tienes $totalItems item(s) en tu carrito")
+                            }
+                        },
+                        modifier = Modifier.clickable {
+                            // Navegamos a la ruta del carrito que usa el mismo CartViewModel
+                            navController.navigate("cart_route")
+                        }
+                    )
+                }
+
+                Spacer(Modifier.height(8.dp))
+
+                // ---- OPCIÓN: VER LISTADO DE POSTS API ----
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Default.List, contentDescription = "Ver Posts API")
                         },
                         headlineContent = { Text("Ver Listado de Posts API") },
                         modifier = Modifier.clickable {
-                            // Navegación a la ruta definida en AppNav
                             navController.navigate("posts_list_route")
                         }
                     )
@@ -248,7 +290,7 @@ fun DrawerMenu(
             }
         }
 
-        // BOTÓN CERRAR SESIÓN
+        // ---------- BOTÓN CERRAR SESIÓN ----------
         Button(
             onClick = {
                 navController.navigate("login") { popUpTo(0) }
@@ -261,7 +303,7 @@ fun DrawerMenu(
             Text("Cerrar sesión")
         }
 
-        // FOOTER
+        // ---------- FOOTER ----------
         Text(
             text = "@ 2025 TodoKartasApp ☻☻☻",
             style = MaterialTheme.typography.bodySmall,
@@ -276,6 +318,11 @@ fun DrawerMenu(
 @Preview(showBackground = true)
 @Composable
 fun DrawerMenuPreview() {
-    val navController = androidx.navigation.compose.rememberNavController()
-    DrawerMenu(username = "admin", navController = navController)
+    val navController = rememberNavController()
+    val fakeVm = CartViewModel()   // Preview con carrito vacío
+    DrawerMenu(
+        username = "admin",
+        navController = navController,
+        cartViewModel = fakeVm
+    )
 }

@@ -76,8 +76,8 @@ fun CarritoScreen(
                     subtotal = subtotal,
                     total = total,
                     onConfirm = {
-                        cartViewModel.clearCart()
-                        navController.popBackStack()
+                        navController.navigate("checkout/$total")
+
                     }
                 )
             }
@@ -177,12 +177,18 @@ fun CartSummary(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Subtotal:")
                 Text("$${subtotal}")
             }
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Total:", fontWeight = FontWeight.Bold)
                 Text(
                     "$${total}",
@@ -195,7 +201,7 @@ fun CartSummary(
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = onConfirm,
+                onClick = onConfirm,   // 🟣 ahora sí navegará a CheckoutScreen
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),

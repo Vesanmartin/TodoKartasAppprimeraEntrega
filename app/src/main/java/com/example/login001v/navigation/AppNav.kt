@@ -19,12 +19,14 @@ import com.example.login001v.view.QrRoute
 import com.example.login001v.view.PostScreen
 import com.example.login001v.viewmodel.CartViewModel
 import com.example.login001v.viewmodel.PostViewModel
+import com.example.login001v.view.CheckoutScreen
+
 
 @Composable
 fun AppNav() {
     val navController = rememberNavController()
 
-    // 🔹 Un solo CartViewModel compartido en toda la app
+    //Un solo CartViewModel compartido en toda la app
     val cartViewModel: CartViewModel = viewModel()
 
     NavHost(
@@ -57,7 +59,7 @@ fun AppNav() {
             )
         ) { backStackEntry ->
             val username = backStackEntry.arguments?.getString("username") ?: ""
-            DrawerMenu(username = username, navController = navController)
+            DrawerMenu(username = username, navController = navController, cartViewModel = cartViewModel)
         }
 
         composable(
@@ -72,7 +74,7 @@ fun AppNav() {
             val precio = backStackEntry.arguments?.getString("precio") ?: ""
             val imgRes = backStackEntry.arguments?.getInt("imgRes") ?: 0
 
-            // 🔹 Aquí también usamos el mismo cartViewModel
+            // Uso de  cartViewModel
             ProductoFormScreen(
                 navController = navController,
                 nombre = nombre,
@@ -94,12 +96,21 @@ fun AppNav() {
         ) { backStackEntry ->
             val username = backStackEntry.arguments?.getString("username") ?: ""
 
-            // 🔹 AHORA sí pasamos el cartViewModel al catálogo
+            // AHORA sí pasamos el cartViewModel al catálogo
             CatalogoScreen(
                 username = username,
                 navController = navController,
                 cartViewModel = cartViewModel
             )
+        }
+        composable(
+            route = "checkout/{total}",
+            arguments = listOf(
+                navArgument("total") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val total = backStackEntry.arguments?.getInt("total") ?: 0
+            CheckoutScreen(navController = navController, total = total)
         }
 
         // Ruta de búsqueda de cartas (PostScreen)
