@@ -1,12 +1,12 @@
 package com.example.login001v.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope // Necesario para launchIn
+import androidx.lifecycle.viewModelScope
 import com.example.login001v.data.model.CartItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.launchIn // Necesario para iniciar la corrutina de recolección
-import kotlinx.coroutines.flow.onEach // Necesario para procesar cada cambio
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
 // ViewModel compartido para gestionar el estado del carrito de compras.
@@ -17,7 +17,7 @@ class CartViewModel : ViewModel() {
     // Estado público de solo lectura.
     val cartItems: StateFlow<List<CartItem>> = _cartItems
 
-    // Declaración de los flujos de totales.
+    // Flujos de totales.
     private val _subtotal = MutableStateFlow(0)
     val subtotal: StateFlow<Int> = _subtotal
 
@@ -25,18 +25,14 @@ class CartViewModel : ViewModel() {
     val total: StateFlow<Int> = _total
 
     init {
-        // Inicializa la lógica de cálculo de totales en una corrutina.
-        // Usamos onEach para reaccionar a cada cambio en _cartItems.
+        // Cada vez que cambia la lista, recalculamos totales
         _cartItems
             .onEach { items ->
                 val newSubtotal = items.sumOf { it.subtotalItem }
                 val newTotal = items.sumOf { it.totalItem }
-                // Actualizamos los flujos de totales.
                 _subtotal.value = newSubtotal
                 _total.value = newTotal
             }
-            // Lanza la recolección dentro del ámbito del ViewModel
-            // para que se detenga automáticamente cuando el ViewModel se destruya.
             .launchIn(viewModelScope)
     }
 
@@ -48,7 +44,6 @@ class CartViewModel : ViewModel() {
             val existingItem = currentItems.find { it.nombre == newItem.nombre }
 
             if (existingItem != null) {
-                // El producto ya existe: crea una nueva lista con la cantidad actualizada.
                 currentItems.map { item ->
                     if (item.nombre == newItem.nombre) {
                         item.copy(cantidad = item.cantidad + newItem.cantidad)
@@ -57,7 +52,6 @@ class CartViewModel : ViewModel() {
                     }
                 }
             } else {
-                // Producto nuevo: lo añade a la lista.
                 currentItems + newItem
             }
         }
@@ -70,16 +64,29 @@ class CartViewModel : ViewModel() {
     fun updateQuantity(itemToUpdate: CartItem, newQuantity: Int) {
         _cartItems.update { currentItems ->
             if (newQuantity <= 0) {
-                // Eliminar el item
                 currentItems.filter { it.nombre != itemToUpdate.nombre }
             } else {
-                // Actualizar la cantidad
                 currentItems.map { item ->
                     if (item.nombre == itemToUpdate.nombre) {
                         item.copy(cantidad = newQuantity)
                     } else {
                         item
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * Actualiza si el item lleva certificación o no.
+     */
+    fun updateCertification(itemToUpdate: CartItem, newCert: Boolean) {
+        _cartItems.update { currentItems ->
+            currentItems.map { item ->
+                if (item.nombre == itemToUpdate.nombre) {
+                    item.copy(conCertificacion = newCert)
+                } else {
+                    item
                 }
             }
         }

@@ -8,16 +8,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.login001v.data.model.Post
 import com.example.login001v.ui.home.MuestraDatosScreen
 import com.example.login001v.ui.login.LoginScreen
-import com.example.login001v.view.CarritoScreen
 import com.example.login001v.ui.login.RegistroScreen
+import com.example.login001v.view.CarritoScreen
 import com.example.login001v.view.CatalogoScreen
 import com.example.login001v.view.DrawerMenu
-import com.example.login001v.view.PostScreen
 import com.example.login001v.view.ProductoFormScreen
 import com.example.login001v.view.QrRoute
+import com.example.login001v.view.PostScreen
 import com.example.login001v.viewmodel.CartViewModel
 import com.example.login001v.viewmodel.PostViewModel
 
@@ -25,6 +24,7 @@ import com.example.login001v.viewmodel.PostViewModel
 fun AppNav() {
     val navController = rememberNavController()
 
+    // 🔹 Un solo CartViewModel compartido en toda la app
     val cartViewModel: CartViewModel = viewModel()
 
     NavHost(
@@ -35,7 +35,7 @@ fun AppNav() {
             LoginScreen(navController = navController)
         }
 
-        // NUEVA RUTA PARA CREAR CUENTA:CHICOS, verifiquen!
+        // Ruta para crear cuenta
         composable("registro") {
             RegistroScreen(navController = navController)
         }
@@ -71,7 +71,15 @@ fun AppNav() {
             val nombre = Uri.decode(backStackEntry.arguments?.getString("nombre") ?: "")
             val precio = backStackEntry.arguments?.getString("precio") ?: ""
             val imgRes = backStackEntry.arguments?.getInt("imgRes") ?: 0
-            ProductoFormScreen(navController, nombre, precio, imgRes, cartViewModel)
+
+            // 🔹 Aquí también usamos el mismo cartViewModel
+            ProductoFormScreen(
+                navController = navController,
+                nombre = nombre,
+                precio = precio,
+                imgRes = imgRes,
+                cartViewModel = cartViewModel
+            )
         }
 
         composable("qrScanner") {
@@ -85,23 +93,27 @@ fun AppNav() {
             )
         ) { backStackEntry ->
             val username = backStackEntry.arguments?.getString("username") ?: ""
-            CatalogoScreen(username = username, navController = navController)
+
+            // 🔹 AHORA sí pasamos el cartViewModel al catálogo
+            CatalogoScreen(
+                username = username,
+                navController = navController,
+                cartViewModel = cartViewModel
+            )
         }
 
-        // COMPOSABLE PARA INTEGRAR PostScreen
-       // *** RUTA DE BÚSQUEDA DE CARTAS (ACTUALIZADA) ***
+        // Ruta de búsqueda de cartas (PostScreen)
         composable("posts_list_route") {
-                // Instancia el nuevo ViewModel
-                val postViewModel: PostViewModel = viewModel()
-
-                // Muestra la nueva pantalla
-                PostScreen(viewModel = postViewModel)
-            }
-
-
-        composable("cart_route") {
-            CarritoScreen(navController = navController, cartViewModel = cartViewModel)
+            val postViewModel: PostViewModel = viewModel()
+            PostScreen(viewModel = postViewModel)
         }
 
+        // Ruta del carrito
+        composable("cart_route") {
+            CarritoScreen(
+                navController = navController,
+                cartViewModel = cartViewModel
+            )
+        }
     }
-}// fin AppNav
+} // fin AppNav

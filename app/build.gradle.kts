@@ -77,7 +77,7 @@ dependencies {
     kapt("androidx.room:room-compiler:2.6.1")          // Misma versión
     implementation("androidx.room:room-ktx:2.6.1")     // Misma versión
 
-    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+
 
 // CameraX
     val camerax_version = "1.3.3"
@@ -118,11 +118,7 @@ dependencies {
     // MockK
     testImplementation("io.mockk:mockk:1.13.10")
 
-    // Compose UI Test
-    androidTestImplementation("anrdoidx.compose.ui:ui-test-junit4:1.6.2")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
-
-    // Dependencia de Coil para Compose (se usa para cargar imagenes desde la api)
+   // Dependencia de Coil para Compose (se usa para cargar imagenes desde la api)
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     testImplementation(libs.junit)
@@ -133,17 +129,18 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
+    }
     // Obligatorio para usar JUnit 5
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
-    }
 
-    tasks.withType<Test> {
-        useJUnitPlatform()  // <<< NECESARIO
+        tasks.withType<Test> {
+            useJUnitPlatform()  // <<< NECESARIO
 
-        testLogging {
-            events("passed", "failed", "skipped")
+            testLogging {
+                events("passed", "failed", "skipped")
+            }
         }
-    }
 
-}
+    }
