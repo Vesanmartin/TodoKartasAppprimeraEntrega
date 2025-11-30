@@ -1,4 +1,3 @@
-// Archivo: CardScreen.kt (Reemplaza a PostScreen.kt)
 package com.example.login001v.view
 
 import androidx.compose.foundation.Image
@@ -16,16 +15,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import com.example.login001v.viewmodel.PostViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel // Para obtener CardViewModel en AppNav
 import com.example.login001v.data.model.Post
-
+import com.example.login001v.viewmodel.PostViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostScreen(viewModel: PostViewModel = viewModel()){
-    // Observamos los flujos de datos
+fun PostScreen(viewModel: PostViewModel = viewModel()) {
+    //  flujos de datos
     val cards by viewModel.cardList.collectAsState()
     val searchQuery by viewModel.searchQuery.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -46,33 +44,48 @@ fun PostScreen(viewModel: PostViewModel = viewModel()){
             // *** INPUT DE BÚSQUEDA ***
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { viewModel.onSearchQueryChange(it) }, // Llama al ViewModel en cada cambio
+                onValueChange = { viewModel.onSearchQueryChange(it) },
                 label = { Text("Buscar cartas por nombre") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Buscar"
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             )
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // *** INDICADOR DE CARGA ***
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            // *** ESTADOS DE CARGA / MENSAJES ***
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
-            } else if (cards.isEmpty() && searchQuery.isNotBlank()) {
-                Text(
-                    text = "No se encontraron cartas para \"$searchQuery\".",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
-            } else if (cards.isEmpty() && searchQuery.isBlank()) {
-                Text(
-                    text = "Ingresa un nombre para buscar cartas de Pokémon TCG.",
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center
-                )
+
+                cards.isEmpty() && searchQuery.isNotBlank() -> {
+                    Text(
+                        text = "No se encontraron cartas para \"$searchQuery\".",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                cards.isEmpty() && searchQuery.isBlank() -> {
+                    Text(
+                        text = "Ingresa un nombre para buscar cartas de Pokémon TCG.",
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
 
-            // *** LISTA DE RESULTADOS (LazyColumn) ***
+            // *** LISTA DE RESULTADOS ***
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -92,14 +105,17 @@ fun CardResultItem(card: Post) {
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-            // Imagen de la carta usando Coil
+
+            // Elegimos primero imagen grande, si no, la pequeña
+            val imageUrl = card.images?.large ?: card.images?.small
+
             Image(
-                painter = rememberAsyncImagePainter(card.images.small),
-                contentDescription = card.name,
-                contentScale = ContentScale.Fit, // Usar Fit para que se vea bien la carta completa
+                painter = rememberAsyncImagePainter(model = imageUrl),
+                contentDescription = card.name ?: "Carta",
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
                     .width(130.dp)
                     .padding(8.dp)
@@ -112,17 +128,30 @@ fun CardResultItem(card: Post) {
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = card.name,
+                    text = card.name ?: "Carta sin nombre",
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Tipo: ${card.supertype}", style = MaterialTheme.typography.bodyMedium)
+
+                Text(
+                    text = "Tipo: ${card.supertype ?: "Desconocido"}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
                 card.types?.let {
-                    Text(text = "Energía: ${it.joinToString(", ")}", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = "Energía: ${it.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
+
                 card.hp?.let {
-                    Text(text = "HP: $it", style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = "HP: $it",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }

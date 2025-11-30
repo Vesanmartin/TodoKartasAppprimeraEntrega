@@ -66,7 +66,7 @@ dependencies {
     // Dependencia para la navegación con Jetpack Compose
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
-// Íconos (core opcional) y EXTENDIDOS (¡este es el clave!)
+// Íconos (core opcional) y EXTENDIDOS
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.material:material-icons-extended")
 
@@ -104,16 +104,11 @@ dependencies {
     // Coroutines Test
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
-    // Kotest
-    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
-    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
-
-    //JUnit 5
-    testImplementation("org.junit.jupiter:junit-jupiter:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
-
     // AndroidX Test
     testImplementation("androidx.arch.core:core-testing:2.2.0")
+    testImplementation(libs.junit) // normalmente junit:junit:4.13.2
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+
 
     // MockK
     testImplementation("io.mockk:mockk:1.13.10")
@@ -121,7 +116,6 @@ dependencies {
    // Dependencia de Coil para Compose (se usa para cargar imagenes desde la api)
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -129,18 +123,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-
-    }
-    // Obligatorio para usar JUnit 5
-    tasks.withType<Test>().configureEach {
-        useJUnitPlatform()
-
-        tasks.withType<Test> {
-            useJUnitPlatform()  // <<< NECESARIO
-
-            testLogging {
-                events("passed", "failed", "skipped")
-            }
-        }
-
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     }

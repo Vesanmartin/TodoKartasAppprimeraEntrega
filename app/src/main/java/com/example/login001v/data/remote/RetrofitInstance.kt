@@ -2,35 +2,39 @@ package com.example.login001v.data.remote
 
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.concurrent.TimeUnit // <<< Asegúrate de tener esta importación
+import java.util.concurrent.TimeUnit
 
 const val POKEMON_TCG_API_KEY = "661c6d07-efdf-4e2b-8c13-673533803a3b"
 
-object RetrofitInstance{
-    val BASE_URL = "https://api.pokemontcg.io/v2/"
+object RetrofitInstance {
 
+    private const val BASE_URL = "https://api.pokemontcg.io/v2/"
+
+    // Interceptor para agregar la API Key
     private val authInterceptor = Interceptor { chain ->
-        val originalRequest = chain.request()
-        val newRequest = originalRequest.newBuilder()
-            .header("X-Api-Key", POKEMON_TCG_API_KEY)
+        val original = chain.request()
+        val newRequest = original.newBuilder()
+            .addHeader("X-Api-Key", POKEMON_TCG_API_KEY)
             .build()
         chain.proceed(newRequest)
     }
 
-    // Aumentamos los tiempos límite (timeouts) aquí
+    // Interceptor para ver logs en Logcat (útil)
+    private val logging = HttpLoggingInterceptor().apply {
+        level = HttpLoggingInterceptor.Level.BODY
+    }
+
     private val okHttpClient = OkHttpClient.Builder()
         .addInterceptor(authInterceptor)
-        // 30 segundos para establecer la conexión
+        .addInterceptor(logging)
         .connectTimeout(60, TimeUnit.SECONDS)
-        // 30 segundos para esperar la respuesta completa del servidor
         .readTimeout(60, TimeUnit.SECONDS)
-        // 30 segundos para enviar la solicitud (menos relevante en GET)
         .writeTimeout(60, TimeUnit.SECONDS)
         .build()
 
-    // Retrofit usa este cliente con los nuevos timeouts
     val api: ApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
