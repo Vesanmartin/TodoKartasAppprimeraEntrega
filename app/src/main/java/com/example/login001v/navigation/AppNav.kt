@@ -17,9 +17,13 @@ import com.example.login001v.view.CatalogoScreen
 import com.example.login001v.view.DrawerMenu
 import com.example.login001v.view.PostScreen
 import com.example.login001v.view.ProductoFormScreen
+import com.example.login001v.view.QrResultScreen
 import com.example.login001v.view.QrRoute
 import com.example.login001v.viewmodel.CartViewModel
 import com.example.login001v.viewmodel.PostViewModel
+import com.example.login001v.viewmodel.QrViewModel
+import java.net.URLDecoder
+import java.net.URLEncoder
 
 @Composable
 fun AppNav() {
@@ -74,10 +78,49 @@ fun AppNav() {
             ProductoFormScreen(navController, nombre, precio, imgRes, cartViewModel)
         }
 
-        composable("qrScanner") {
-            QrRoute(navController = navController, returnKey = "qr")
+// **!!! REEMPLAZA EL BLOQUE ANTERIOR DE "qrScanner" CON ESTO !!!**
+        // 1. NUEVA RUTA PARA EL ESCÁNER, AHORA LLAMA A QrRoute
+        composable("qr_scanner_route") {
+            val qrViewModel: QrViewModel = viewModel()
+
+            val onNavigate: (String) -> Unit = { qrContent ->
+                val encodedContent = URLEncoder.encode(qrContent, "UTF-8")
+
+                navController.navigate("qr_result_route/$encodedContent")
+
+                // Limpiamos el resultado inmediatamente después de navegar
+                qrViewModel.clearResult()
+            }
+
+            // Llama al QrRoute que tiene la lógica de permisos y el LaunchedEffect para navegar
+            QrRoute(
+                navController = navController,
+                vm = qrViewModel,
+                onQrScannedAndNavigate = onNavigate // Pasamos la función de navegación
+            )
         }
 
+        // 2. NUEVA RUTA PARA LOS RESULTADOS
+        composable(
+            route = "qr_result_route/{qr_content}",
+            arguments = listOf(
+                navArgument("qr_content") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val qrContentEncoded = backStackEntry.arguments?.getString("qr_content")
+            val qrContent = qrContentEncoded?.let { URLDecoder.decode(it, "UTF-8") } ?: "Error al leer QR"
+
+            val onScanAgain: () -> Unit = {
+                // Vuelve a la pantalla de escaneo
+                navController.popBackStack("qr_scanner_route", inclusive = false)
+            }
+
+            // Aquí se muestra la pantalla que contiene la lógica del concurso
+            QrResultScreen(
+                qrContent = qrContent,
+                onScanAgain = onScanAgain
+            )
+        }
         composable(
             route = "catalogo/{username}",
             arguments = listOf(

@@ -197,7 +197,7 @@ fun DrawerMenu(
                             Icon(Icons.Default.QrCode, contentDescription = "Escanear QR")
                         },
                         headlineContent = { Text("Escanear código QR") },
-                        modifier = Modifier.clickable { navController.navigate("qrScanner") }
+                        modifier = Modifier.clickable { navController.navigate("qr_scanner_route") }
                     )
                 }
 

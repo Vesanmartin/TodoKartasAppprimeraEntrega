@@ -1,6 +1,5 @@
 package com.example.login001v.view
 
-
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
@@ -21,18 +20,31 @@ fun QrScannerScreen(
     viewModel: QrViewModel,
     hasCameraPermission: Boolean,
     onRequestPermission: () -> Unit
+    // **IMPORTANTE:** Se elimina el argumento onQrScannedAndNavigate si no es necesario en el Composable
+    // La navegación se gestiona en QrRoute.kt (LaunchedEffect)
 ) {
     val qrResult by viewModel.qrResult.observeAsState()
     val context = LocalContext.current
+    // isScanning es manejado internamente por el scanner (al detectar se detiene)
+
+    // Detener escaneo si ya hay resultado, para que no siga escaneando tras el éxito
     var isScanning by remember { mutableStateOf(true) }
+
+    LaunchedEffect(qrResult) {
+        if (qrResult != null) {
+            isScanning = false // Detener el scanner visualmente
+        }
+    }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()            .padding(16.dp),
+            .fillMaxSize()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         if (!hasCameraPermission) {
+            // Lógica de permiso de cámara (sin cambios)
             Text(
                 "Permiso de cámara requerido",
                 style = MaterialTheme.typography.titleLarge,
@@ -50,14 +62,15 @@ fun QrScannerScreen(
             ) {
                 Text("Conceder permiso de cámara")
             }
-        } else if (qrResult == null && isScanning) {
+        }
+        // CAMBIO: Solo escaneamos si 'isScanning' es true
+        else if (isScanning) {
             Text(
                 "Escanea un código QR",
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Usar el nuevo scanner con CameraX
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -65,15 +78,15 @@ fun QrScannerScreen(
             ) {
                 QrScanner(
                     onQrCodeScanned = { qrContent ->
-                        // Procesar el QR detectado
+                        // 1. Procesar el QR detectado en el ViewModel
                         viewModel.onQrDetected(qrContent)
-                        isScanning = false
+                        // 2. La navegación se dispara ahora en QrRoute.kt LaunchedEffect
                         Toast.makeText(context, "QR detectado!", Toast.LENGTH_SHORT).show()
                     },
                     modifier = Modifier.fillMaxSize()
                 )
 
-                // Overlay para ayudar al escaneo
+                // Overlay para ayudar al escaneo (sin cambios)
                 Surface(
                     modifier = Modifier
                         .size(250.dp)
@@ -99,41 +112,16 @@ fun QrScannerScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        } else if (qrResult != null) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    " QR Detectado:",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Text(
-                        qrResult!!.content,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(16.dp)
-                    )
-                }
-                Spacer(Modifier.height(16.dp))
-                Button(
-                    onClick = {
-                        viewModel.clearResult()
-                        isScanning = true
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Escanear otro código QR")
-                }
-            }
+        }
+        // AÑADIDO: Muestra un mensaje de "Procesando" si el QR ya fue detectado pero no ha navegado
+        else if (qrResult != null && !isScanning) {
+            Text(
+                "QR detectado. Procesando y navegando a resultados...",
+                style = MaterialTheme.typography.titleMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(Modifier.height(16.dp))
+            CircularProgressIndicator()
         }
     }
 }

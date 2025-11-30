@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -17,12 +16,13 @@ import com.example.login001v.viewmodel.QrViewModel
 @Composable
 fun QrRoute(
     navController: NavController,
-    vm: QrViewModel = viewModel(),          // usa hiltViewModel() si ocupas Hilt
-    returnKey: String = "qr"                // clave para devolver el resultado
+    vm: QrViewModel = viewModel(),
+    // **NUEVO:** Recibe la función de navegación (que viene de AppNav.kt)
+    onQrScannedAndNavigate: (qrContent: String) -> Unit
 ) {
     val ctx = LocalContext.current
 
-    // Permiso actual
+    // Lógica de permisos de cámara (Se mantiene sin cambios)
     var hasCameraPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(
@@ -31,7 +31,6 @@ fun QrRoute(
         )
     }
 
-    // Launcher para solicitar permiso
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -43,27 +42,29 @@ fun QrRoute(
         ).show()
     }
 
-    // Observa resultado para devolverlo y volver
-    val qrResult = vm.qrResult.observeAsState()
+    // Observa resultado para NAVEGAR
+    val qrResult by vm.qrResult.observeAsState()
 
-    LaunchedEffect(qrResult.value) {
-        qrResult.value?.let { result ->
-            // ▸ Devuelve el contenido a la pantalla anterior
-            navController.previousBackStackEntry
-                ?.savedStateHandle
-                ?.set(returnKey, result.content)
-            // Limpia y vuelve
-            vm.clearResult()
-            navController.popBackStack()
+    LaunchedEffect(qrResult) {
+        // CAMBIO CLAVE: En lugar de usar popBackStack(), usamos la función de navegación
+        if (qrResult != null) {
+            // 1. Llama a la función que navega a la pantalla de resultados
+            onQrScannedAndNavigate(qrResult!!.content)
+
+            // 2. Limpia el resultado, pero NO hace popBackStack aquí.
+            // (La limpieza se hace después de navegar para evitar doble disparo)
         }
     }
 
-    // Tu pantalla: le pasamos permiso y launcher
+    // Tu pantalla: le pasamos permiso y la NUEVA función de navegación
     QrScannerScreen(
         viewModel = vm,
         hasCameraPermission = hasCameraPermission,
         onRequestPermission = {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
+        // **NUEVO:** Pasamos una función vacía, la lógica de navegación está en el LaunchedEffect.
+        // La QrScannerScreen ya no necesitará este argumento.
+        // La modificaremos para que ya no pida esta lambda, sino que use el LaunchedEffect.
     )
 }
