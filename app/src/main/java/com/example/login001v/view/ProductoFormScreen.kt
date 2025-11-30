@@ -19,8 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.lifecycle.viewmodel.compose.viewModel // Importar para obtener el ViewModel
-import com.example.login001v.R
 import com.example.login001v.data.model.CartItem // Importar el modelo CartItem
 import com.example.login001v.viewmodel.CartViewModel // Importar el ViewModel del carrito
 
@@ -32,8 +30,8 @@ fun ProductoFormScreen(
     nombre: String,
     precio: String,
     imgRes: Int,
-    // Inyectamos el CartViewModel. Si se usa NavCompose, se puede obtener con viewModel()
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel
+
 ) {
     // Convertir precio a Int
     val precioUnitario = precio.toIntOrNull() ?: 0
@@ -210,20 +208,19 @@ fun ProductoFormScreen(
 
                 // 4. INICIO BOTÓN AÑADIR/ACTUALIZAR CARRITO
                 item {
-                    // Creamos el CartItem con los valores actuales
+
                     val itemToAdd = CartItem(
                         nombre = nombre,
                         precioUnitario = precioUnitario,
+                        imagenRes = imgRes,
                         cantidad = cantidad,
                         conCertificacion = conCertificacion
                     )
 
                     Button(
                         onClick = {
-                            // Lógica para añadir/actualizar el producto en el carrito
                             cartViewModel.addItem(itemToAdd)
-                            // Opcional: Volver a la pantalla anterior después de añadir
-                            navController.popBackStack()
+                            navController.navigate("cart_route")  //va al CarritoScreen
                         },
                         modifier = Modifier
                             .fillMaxWidth()

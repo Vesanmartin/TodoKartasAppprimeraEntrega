@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.login001v.R
+import com.example.login001v.viewmodel.CartViewModel
 
 // MODELO DE DATOS
 data class ProductoData(
@@ -38,7 +39,9 @@ data class ProductoData(
 @Composable
 fun CatalogoScreen(
     username: String,
-    navController: NavController
+    navController: NavController,
+    cartViewModel: CartViewModel
+
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 

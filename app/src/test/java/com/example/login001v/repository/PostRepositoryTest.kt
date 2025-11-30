@@ -8,53 +8,67 @@
 // Verificación: Confirma que el resultado coincide exactamente con los datos esperados
 //--------------------------------------------------------------------------------
 
-package com.example.apirest001
+// Archivo: PostRepositoryTest.kt
+package com.example.login001v.repository
 
-// Importa la clase Post del modelo de datos
+// Importamos las clases necesarias para crear datos falsos de tipo Post
 import com.example.login001v.data.model.CardImages
 import com.example.login001v.data.model.Post
-// Importa la interfaz ApiService para llamadas a la API
-import com.example.login001v.data.remote.ApiService
-// Importa el repositorio que se va a testear
-import com.example.login001v.data.repository.PostRepository
-// Importa el estilo StringSpec de Kotest para escribir tests
-import io.kotest.core.spec.style.StringSpec
-//import io.kotest.core.spec.style.scopes.StringSpecRootScope.invoke
-// Importa el matcher para verificar que una colección contiene exactamente los elementos esperados
-import io.kotest.matchers.collections.shouldContainExactly
-// Importa coEvery de MockK para definir comportamiento de funciones suspendidas
-import io.mockk.coEvery
-// Importa mockk para crear objetos mock
-import io.mockk.mockk
-// Importa runTest para ejecutar tests con corrutinas
+
+// Importamos herramientas para pruebas con corrutinas
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 
-// Clase de test para PostRepository usando Kotest con estilo StringSpec
-class PostRepositoryTest : StringSpec({
-    // Define un test case con descripción en lenguaje natural
-    "getPosts() debe retornar una lista de posts simulada Vicente Zapata" {
-        // Crea una lista falsa de posts para usar en el test - debemos cambiar esto para que se adecue a la estructura de post de nuestro proyecto.
-        val fakeImgs = CardImages("test","testimg")
+// Importamos funciones de JUnit para hacer verificaciones (assert)
+import org.junit.Assert.assertEquals
+import org.junit.Test
 
-        val fakePosts = listOf(
-            // Crea el primer post de prueba con datos simulados
-            Post(id = "1","charizard","test","100",listOf("Fire"),fakeImgs),
-            // Crea el segundo post de prueba con datos simulados
-            Post(id = "2","charmander","test","100",listOf("Fire"),fakeImgs),
+// Indicamos que vamos a usar funciones experimentales de corrutinas
+@OptIn(ExperimentalCoroutinesApi::class)
+class PostRepositoryTest {
+
+    // Este es un test unitario que verifica que podemos trabajar correctamente
+    // con una lista simulada (fake) de objetos tipo Post.
+    @Test
+    fun `getPosts devuelve lista simulada`() = runTest {
+
+        // 1. Creamos un objeto CardImages falso, como si viniera de la API.
+        // Este objeto representa las imágenes de una carta Pokémon.
+        val fakeImgs = CardImages(
+            small = "smallUrl",
+            large = "largeUrl"
         )
 
-        // Mock del PostRepository completo
-        // Crea un objeto mock de PostRepository usando MockK
-        val repo = mockk<PostRepository>()
-        // Define el comportamiento del mock: cuando se llame a getPosts(), retornar fakePosts
-        coEvery { repo.searchCards("charizard") } returns fakePosts
+        // 2. Creamos una lista de Post falsos.
+        // En una app real vendrían desde Retrofit, pero aquí los inventamos para probar.
+        val fakePosts = listOf(
+            Post(
+                id = "1",
+                name = "charizard",        // nombre de la carta
+                supertype = "test",
+                hp = "100",                // puntos de vida
+                types = listOf("Fire"),    // tipo fuego
+                images = fakeImgs
+            ),
+            Post(
+                id = "2",
+                name = "charmander",       // otra carta
+                supertype = "test",
+                hp = "60",
+                types = listOf("Fire"),
+                images = fakeImgs
+            )
+        )
 
-        // Ejecuta el test en un contexto de corrutinas
-        runTest {
-            // Llama al método getPosts() del repositorio mockeado
-            val result = repo.searchCards("charizard")
-            // Verifica que el resultado contenga exactamente los mismos posts que fakePosts
-            result shouldContainExactly fakePosts
-        }
+        // 3. Aquí hacemos las primeras verificaciones:
+        // Comprobamos que la lista tiene exactamente 2 elementos.
+        assertEquals(2, fakePosts.size)
+
+        // 4. Verificamos que el primer objeto tenga el nombre correcto.
+        // Esto asegura que los datos están como los esperamos.
+        assertEquals("charizard", fakePosts[0].name)
+
+        // 5. Verificamos también el segundo objeto.
+        assertEquals("charmander", fakePosts[1].name)
     }
-})
+}

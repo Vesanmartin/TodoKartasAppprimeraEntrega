@@ -14,35 +14,33 @@
 
 
 
-
-
-
 // Declara el paquete donde se encuentra la clase de test
 package com.example.login001v.viewmodel
 
-// Importa el modelo de datos Post
+// Importa el modelo de datos CardImages y Post
 import com.example.login001v.data.model.CardImages
 import com.example.login001v.data.model.Post
+
+
 // Importa los dispatchers de corrutinas
 import kotlinx.coroutines.Dispatchers
+
 // Importa la anotación para APIs experimentales de corrutinas
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+
 // Importa el dispatcher de test sin confinamiento
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-// Importa función para resetear el dispatcher principal
+
+// Importa funciones para resetear/definir el dispatcher principal
 import kotlinx.coroutines.test.resetMain
-// Importa el builder para tests de corrutinas
 import kotlinx.coroutines.test.runTest
-// Importa función para establecer el dispatcher principal de test
 import kotlinx.coroutines.test.setMain
-// Importa anotación para método que se ejecuta después de cada test
-import org.junit.jupiter.api.AfterEach
-// Importa funciones de aserción para tests
-import org.junit.jupiter.api.Assertions.*
-// Importa anotación para método que se ejecuta antes de cada test
-import org.junit.jupiter.api.BeforeEach
-// Importa anotación para definir métodos de test
-import org.junit.jupiter.api.Test
+
+// JUnit4
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.junit.Assert.assertEquals
 
 // Anotación para indicar uso de APIs experimentales de corrutinas
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,47 +51,60 @@ class PostViewModelTest {
     private val testDispatcher = UnconfinedTestDispatcher()
 
     // Método que se ejecuta antes de cada test
-    @BeforeEach
+    @Before
     fun setUp() {
-        // Configurar el dispatcher de test antes de cada test
         // Establece el dispatcher principal para tests
         Dispatchers.setMain(testDispatcher)
     }
 
     // Método que se ejecuta después de cada test
-    @AfterEach
+    @After
     fun tearDown() {
-        // Limpiar después de cada test
         // Restaura el dispatcher principal original
         Dispatchers.resetMain()
     }
 
-    // Test que verifica que postList contiene los datos esperados
+    // Test que verifica que cardList contiene los datos esperados
     @Test
     fun `postList contiene datos esperados`() = runTest(testDispatcher) {
-        val fakeImgs = CardImages("test","testimg")
-
+        val fakeImgs = CardImages(
+            small = "test",
+            large = "testimg"
+        )
+       // lista fake de cartas
         val fakePosts = listOf(
             // Crea el primer post de prueba con datos simulados
-            Post(id = "1","charizard","test","100",listOf("Fire"),fakeImgs),
+            Post(
+                id = "1",
+                name = "charizard",
+                supertype = "test",
+                hp = "100",
+                types = listOf("Fire"),
+                images = fakeImgs
+            ),
             // Crea el segundo post de prueba con datos simulados
-            Post(id = "2","charmander","test","100",listOf("Fire"),fakeImgs),
+            Post(
+                id = "2",
+                name = "charmander",
+                supertype = "test",
+                hp = "100",
+                types = listOf("Fire"),
+                images = fakeImgs
+            )
         )
 
-
-        // El ViewModel ahora usará el testDispatcher gracias a @BeforeEach
         // Crea una instancia del ViewModel bajo test
         val viewModel = PostViewModel()
 
+        // ⚠ OJO: esto solo compila si _cardList es visible desde aquí (no private)
         // Simulamos que fetchPosts() completó exitosamente
-        // Asigna directamente los datos falsos al StateFlow mutable
         viewModel._cardList.value = fakePosts
 
         // Verifica que el tamaño de la lista sea el esperado
         assertEquals(2, viewModel.cardList.value.size)
-        // Verifica que el título del primer post sea correcto
+        // Verifica que el nombre del primer post sea correcto
         assertEquals("charizard", viewModel.cardList.value[0].name)
-        // Verifica que el cuerpo del segundo post sea correcto
+        // Verifica que el HP del segundo post sea correcto
         assertEquals("100", viewModel.cardList.value[1].hp)
     }
 
@@ -101,7 +112,6 @@ class PostViewModelTest {
     @Test
     fun `test básico de ejemplo`() = runTest(testDispatcher) {
         // Test simple que no depende del ViewModel
-        // Verifica una igualdad básica
         assertEquals(1, 1)
     }
-}
+} // fin test

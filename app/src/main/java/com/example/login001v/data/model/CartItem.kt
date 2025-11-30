@@ -6,6 +6,7 @@ package com.example.login001v.data.model
 data class CartItem(
     val nombre: String,
     val precioUnitario: Int,
+    val imagenRes:Int,
     var cantidad: Int, // Cantidad seleccionada por el usuario
     val conCertificacion: Boolean = false // Asumimos false por defecto si no viene de la forma
 ) {

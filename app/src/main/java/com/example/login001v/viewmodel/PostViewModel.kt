@@ -1,6 +1,7 @@
-// Archivo: CardViewModel.kt (Reemplaza a PostViewModel.kt)
+// Archivo: PostViewModel.kt
 package com.example.login001v.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.login001v.data.model.Post
@@ -14,19 +15,22 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-// Viewmodel que mantiene el estado de los datos obtenidos
-class PostViewModel: ViewModel(){
-    private val repository = PostRepository()
+// ViewModel que mantiene el estado de las cartas (posts) obtenidas
+class PostViewModel(
+    // Esto permite inyectar un fake/mock en los tests si quieres más adelante
+    private val repository: PostRepository = PostRepository()
+) : ViewModel() {
 
     // 1. Estado del texto de búsqueda ingresado por el usuario
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
     // 2. Estado de la lista de cartas obtenidas
-    private val _cardList = MutableStateFlow<List<Post>>(emptyList()) //Aquí se cambia el internal para los test
-    val cardList: StateFlow<List<Post>> = _cardList
+    //    internal: el test puede acceder a _cardList, la UI usa cardList
+    internal val _cardList = MutableStateFlow<List<Post>>(emptyList())
+    val cardList: StateFlow<List<Post>> = _cardList   // SOLO una vez
 
-    // 3. Estado de la carga (opcional, pero útil)
+    // 3. Estado de la carga (útil para mostrar spinner)
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
 
@@ -35,14 +39,14 @@ class PostViewModel: ViewModel(){
         setupSearchFlow()
     }
 
-    // Función para manejar el texto de búsqueda del usuario
+    // Actualiza el texto de búsqueda desde la UI
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }
 
     // Corrutina para buscar cartas (llamada directa, útil para el botón de búsqueda)
     fun searchCards() {
-        val query = _searchQuery.value
+        val query = _searchQuery.value.trim()
         if (query.isBlank()) {
             _cardList.value = emptyList()
             return
@@ -52,11 +56,11 @@ class PostViewModel: ViewModel(){
             _isLoading.value = true
             try {
                 val apiQuery = "name:$query*"
-                _cardList.value = repository.searchCards(apiQuery)
-            } catch (e: Exception){
-                // *** CAMBIO AQUÍ: Usar Log.e para ver el error en Logcat ***
-                android.util.Log.e("CardViewModel", "Error al buscar cartas: ${e.localizedMessage}", e)
-                _cardList.value = emptyList() // Asegurar que la lista se vacíe en caso de error
+                val result = repository.searchCards(apiQuery)
+                _cardList.value = result
+            } catch (e: Exception) {
+                Log.e("PostViewModel", "Error al buscar cartas: ${e.localizedMessage}", e)
+                _cardList.value = emptyList() // Deja la lista vacía en caso de error
             } finally {
                 _isLoading.value = false
             }
@@ -66,10 +70,9 @@ class PostViewModel: ViewModel(){
     @OptIn(FlowPreview::class)
     private fun setupSearchFlow() {
         _searchQuery
-            .debounce(300L) // Espera 300ms después de que el usuario deja de escribir
-            .filter { it.isNotBlank() } // Solo busca si hay texto
-            .onEach { searchCards() } // Llama a searchCards() cada vez que el texto cambia
+            .debounce(300L)              // Espera 300 ms después de que deja de escribir
+            .filter { it.isNotBlank() }  // Solo busca si hay texto
+            .onEach { searchCards() }    // Llama a searchCards cada vez que cambia
             .launchIn(viewModelScope)
     }
-
-}//fin CardViewModel
+}
