@@ -29,6 +29,7 @@ fun CheckoutScreen(
     var telefono by remember { mutableStateOf("") }
     var metodoPago by remember { mutableStateOf("Tarjeta de crédito") }
     var expanded by remember { mutableStateOf(false) }
+    var comentario by remember { mutableStateOf("") }
 
     // Estado para mostrar mensaje
     var showMessage by remember { mutableStateOf(false) }
@@ -111,6 +112,13 @@ fun CheckoutScreen(
                         value = telefono,
                         onValueChange = { telefono = it },
                         label = { Text("Teléfono de contacto") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = comentario,
+                        onValueChange = { comentario = it },
+                        label = { Text("Comentario Adicional") },
                         modifier = Modifier.fillMaxWidth()
                     )
 
