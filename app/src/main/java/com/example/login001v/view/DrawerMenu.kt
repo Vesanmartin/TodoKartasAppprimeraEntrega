@@ -229,7 +229,7 @@ fun DrawerMenu(
                         },
                         headlineContent = { Text("Escanear código QR") },
                         modifier = Modifier.clickable {
-                            navController.navigate("qrScanner")
+                            navController.navigate("qr_scanner_route")
                         }
                     )
                 }
