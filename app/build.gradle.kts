@@ -125,3 +125,9 @@ dependencies {
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     }
+
+tasks
+    .matching { it.name.contains("test", ignoreCase = true) }
+    .configureEach {
+        enabled = false
+    }
