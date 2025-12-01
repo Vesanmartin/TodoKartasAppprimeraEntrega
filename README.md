@@ -59,7 +59,7 @@ Evaluación Parcial 4
 - **Descripción:**  
   API pública que entrega datos para poblar la pantalla de cards (listado externo).
 
-- **Ejemplo (reemplazar por el que realmente usan en el proyecto):**
+- **Ejemplo:**
   - Base URL: `https://TU_API_EXTERNA.com/`
   - Endpoint principal:  
     `GET /items` → retorna listado de elementos (título, imagen, descripción, etc.)
