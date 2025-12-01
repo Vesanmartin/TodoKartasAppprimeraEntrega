@@ -1,74 +1,65 @@
-//--------------------------------------------------------------------------------
-// Este código implementa una prueba unitaria para verificar que el PostRepository retorna correctamente una lista simulada de posts.
-// PROPÓSITO PRINCIPAL
-// Validar que el método getPosts() del repositorio devuelve los datos esperados usando objetos mock para aislar la prueba de dependencias // externas.
-//
-// Mock del Repository: Crea un PostRepository falso que simula el comportamiento real
-// Datos de Prueba: Lista predefinida con 2 posts ficticios
-// Verificación: Confirma que el resultado coincide exactamente con los datos esperados
-//--------------------------------------------------------------------------------
-
-// Archivo: PostRepositoryTest.kt
+// Archivo: PostRepositoryTest.kt (Modificado)
 package com.example.login001v.repository
 
-// Importamos las clases necesarias para crear datos falsos de tipo Post
 import com.example.login001v.data.model.CardImages
 import com.example.login001v.data.model.Post
-
-// Importamos herramientas para pruebas con corrutinas
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-
-// Importamos funciones de JUnit para hacer verificaciones (assert)
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-// Indicamos que vamos a usar funciones experimentales de corrutinas
 @OptIn(ExperimentalCoroutinesApi::class)
 class PostRepositoryTest {
 
-    // Este es un test unitario que verifica que podemos trabajar correctamente
-    // con una lista simulada (fake) de objetos tipo Post.
     @Test
     fun `getPosts devuelve lista simulada`() = runTest {
+        println("--- INICIANDO PRUEBA: getPosts devuelve lista simulada ---")
 
-        // 1. Creamos un objeto CardImages falso, como si viniera de la API.
-        // Este objeto representa las imágenes de una carta Pokémon.
+        // 1. Creamos un objeto CardImages falso.
         val fakeImgs = CardImages(
             small = "smallUrl",
             large = "largeUrl"
         )
+        println("Paso 1: Objeto CardImages simulado creado.")
 
-        // 2. Creamos una lista de Post falsos.
-        // En una app real vendrían desde Retrofit, pero aquí los inventamos para probar.
+
+        // 2. Creamos una lista de Post falsos (datos de prueba).
         val fakePosts = listOf(
             Post(
                 id = "1",
-                name = "charizard",        // nombre de la carta
+                name = "charizard",
                 supertype = "test",
-                hp = "100",                // puntos de vida
-                types = listOf("Fire"),    // tipo fuego
+                hp = "100",
+                types = listOf("Fire"),
                 images = fakeImgs
             ),
             Post(
                 id = "2",
-                name = "charmander",       // otra carta
+                name = "charmander",
                 supertype = "test",
                 hp = "60",
                 types = listOf("Fire"),
                 images = fakeImgs
             )
         )
+        println("Paso 2: Lista de ${fakePosts.size} Posts simulados creada.")
 
-        // 3. Aquí hacemos las primeras verificaciones:
-        // Comprobamos que la lista tiene exactamente 2 elementos.
+        // 3. Verificación de tamaño: Comprobamos que la lista tiene exactamente 2 elementos.
         assertEquals(2, fakePosts.size)
+        println(" Éxito (Aserción 1): El tamaño de la lista es correcto (${fakePosts.size}).")
 
-        // 4. Verificamos que el primer objeto tenga el nombre correcto.
-        // Esto asegura que los datos están como los esperamos.
-        assertEquals("charizard", fakePosts[0].name)
 
-        // 5. Verificamos también el segundo objeto.
-        assertEquals("charmander", fakePosts[1].name)
+        // 4. Verificación del primer objeto: Comprobamos que el nombre es correcto.
+        val expectedName1 = "charizard"
+        assertEquals(expectedName1, fakePosts[0].name)
+        println(" Éxito (Aserción 2): El nombre del primer Post es '${fakePosts[0].name}'.")
+
+
+        // 5. Verificación del segundo objeto: Comprobamos que el nombre es correcto.
+        val expectedName2 = "charmander"
+        assertEquals(expectedName2, fakePosts[1].name)
+        println("Éxito (Aserción 3): El nombre del segundo Post es '${fakePosts[1].name}'.")
+
+        println("--- PRUEBA getPosts devuelve lista simulada FINALIZADA CON ÉXITO ---")
     }
 }

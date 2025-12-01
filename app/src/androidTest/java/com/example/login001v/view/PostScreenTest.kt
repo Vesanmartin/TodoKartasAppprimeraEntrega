@@ -77,40 +77,40 @@ class PostScreenTest {
 
         // 3. Busca los textos específicos con manejo de errores individual
         try {
-            composeRule.onNodeWithText("Título: Titulo 1", useUnmergedTree = true)
-                .assertExists("No se encontró 'Título: Titulo 1'")
+            composeRule.onNodeWithText("charizard", useUnmergedTree = true)
+                .assertExists("No se encontró 'charizard'")
                 .assertIsDisplayed()
-            println(" ENCONTRADO: 'Título: Titulo 1'")
+            println(" ENCONTRADO: 'charizard'")
         } catch (e: AssertionError) {
-            println(" NO ENCONTRADO: 'Título: Titulo 1' - ${e.message}")
+            println(" NO ENCONTRADO: 'charizard' - ${e.message}")
 
             // Intenta buscar variantes
             try {
-                composeRule.onNodeWithText("Titulo 1", useUnmergedTree = true)
+                composeRule.onNodeWithText("Charizard", useUnmergedTree = true)
                     .assertExists()
                     .assertIsDisplayed()
-                println(" ENCONTRADO: 'Titulo 1' (sin prefijo)")
+                println(" ENCONTRADO: 'Charizard'")
             } catch (e2: AssertionError) {
-                println(" Tampoco se encontró 'Titulo 1'")
+                println(" Tampoco se encontró 'Charizard'")
             }
         }
 
         try {
-            composeRule.onNodeWithText("Título: Titulo 2", useUnmergedTree = true)
-                .assertExists("No se encontró 'Título: Titulo 2'")
+            composeRule.onNodeWithText("charmander", useUnmergedTree = true)
+                .assertExists("No se encontró 'charmander'")
                 .assertIsDisplayed()
-            println(" ENCONTRADO: 'Título: Titulo 2'")
+            println(" ENCONTRADO: 'charmander'")
         } catch (e: AssertionError) {
-            println(" NO ENCONTRADO: 'Título: Titulo 2' - ${e.message}")
+            println(" NO ENCONTRADO: 'charmander' - ${e.message}")
 
             // Intenta buscar variantes
             try {
-                composeRule.onNodeWithText("Titulo 2", useUnmergedTree = true)
+                composeRule.onNodeWithText("Charmander", useUnmergedTree = true)
                     .assertExists()
                     .assertIsDisplayed()
-                println(" ENCONTRADO: 'Titulo 2' (sin prefijo)")
+                println(" ENCONTRADO: 'Charmander'")
             } catch (e2: AssertionError) {
-                println(" Tampoco se encontró 'Titulo 2'")
+                println(" Tampoco se encontró 'Charmander'")
             }
         }
 
