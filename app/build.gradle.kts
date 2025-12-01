@@ -125,9 +125,12 @@ dependencies {
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     }
+// codigo para desactivar test
+tasks.withType<Test>().configureEach {
+    enabled = false
+}
 
-tasks
-    .matching { it.name.contains("test", ignoreCase = true) }
+tasks.matching { it.name.contains("AndroidTest", ignoreCase = true) }
     .configureEach {
         enabled = false
     }

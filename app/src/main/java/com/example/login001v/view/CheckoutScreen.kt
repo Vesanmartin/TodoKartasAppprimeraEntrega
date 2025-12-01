@@ -175,18 +175,7 @@ fun CheckoutScreen(
                     }
 
                     // Mensaje simple debajo del botón
-                    if (showMessage) {
-                        AlertDialog(
-                            onDismissRequest = { showMessage = false },
-                            title = { Text("Compra realizada") },
-                            text = { Text("¡Gracias por su compra! Su pedido ha sido procesado correctamente.") },
-                            confirmButton = {
-                                TextButton(onClick = { showMessage = false }) {
-                                    Text("Aceptar")
-                                }
-                            }
-                        )
-                    }
+
                 }
             }
         }
